@@ -390,8 +390,8 @@ function obtenerPermisosPorRolDefecto(nombreRol) {
   }
   const objetivosSet = new Set(objetivos.map((p) => p.toLowerCase()));
   return permisosCatalogo
-          .filter((permiso) => objetivosSet.has((permiso.nombre || '').toLowerCase()))
-          .map((permiso) => permiso.id);
+    .filter((permiso) => objetivosSet.has((permiso.nombre || '').toLowerCase()))
+    .map((permiso) => permiso.id);
 }
 
 function construirDropdownPermisos(row, rol) {
