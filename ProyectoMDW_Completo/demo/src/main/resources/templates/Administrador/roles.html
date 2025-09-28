@@ -71,6 +71,8 @@
                       <th scope="col">Descripción</th>
                       <th scope="col" class="text-center">Usuarios asignados</th>
                       <th scope="col">Creado</th>
+                      <th scope="col">Actualizado</th>
+                      <th scope="col">Actualizado por</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -99,11 +101,20 @@
             <input type="hidden" id="rolId" />
             <div class="mb-3">
               <label for="nombreRol" class="form-label">Nombre del Rol</label>
-              <input type="text" class="form-control" id="nombreRol" required />
+              <select class="form-select" id="nombreRol" required>
+                <option value="" disabled selected>Selecciona un rol</option>
+                <option value="ADMINISTRADOR">Administrador</option>
+                <option value="VENDEDOR">Vendedor</option>
+                <option value="CONTADOR">Contador</option>
+              </select>
             </div>
             <div class="mb-3">
               <label for="descripcionRol" class="form-label">Descripción</label>
               <textarea class="form-control" id="descripcionRol" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Permisos</label>
+              <div class="row row-cols-2 g-2" id="permisosChecklist"></div>
             </div>
             <button type="submit" class="btn btn-success" id="GuardarRol">
               Guardar
@@ -118,7 +129,6 @@
   <script src="../js/roles.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/logout.js"></script>
-  <script src="../js/productos.js"></script>
 </body>
 
 </html>

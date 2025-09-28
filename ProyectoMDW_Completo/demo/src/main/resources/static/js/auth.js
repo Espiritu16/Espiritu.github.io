@@ -16,6 +16,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    const roleHomes = {
+        'Administrador': '/administrador/',
+        'Vendedor': '/vendedor/',
+        'Contador': '/contador/'
+    };
+
+    const destinoRol = roleHomes[userRole];
+    if (destinoRol) {
+        const actual = window.location.pathname;
+        if (!actual.startsWith(destinoRol)) {
+            window.location.href = destinoRol;
+            return;
+        }
+    }
+
     // --- SECCIÓN 2: PERSONALIZAR LA INTERFAZ DE USUARIO (UI) ---
     const profileNameElement = document.getElementById('user-name');
     const profileRoleElement = document.getElementById('user-role');

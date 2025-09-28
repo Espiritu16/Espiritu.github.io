@@ -43,19 +43,26 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     sessionStorage.setItem('jwtToken', data.token);
                     sessionStorage.setItem('userName', data.email);
-                    sessionStorage.setItem('userRole', data.rol);
+                    const roleMap = {
+                        'ADMINISTRADOR': 'Administrador',
+                        'VENDEDOR': 'Vendedor',
+                        'CONTADOR': 'Contador'
+                    };
+                    const rolBackend = (data.rol || '').toUpperCase();
+                    const rolDisplay = roleMap[rolBackend] || data.rol || 'Sin rol';
+                    sessionStorage.setItem('userRole', rolDisplay);
                     sessionStorage.setItem('userEmail', data.email);
 
                     // --- ¡CORRECCIÓN DE RUTA! ---
                     // Añadimos "html/" al inicio para que redirija a la carpeta correcta.
-                    switch (data.rol) {
-                        case "Administrador":
+                    switch (rolBackend) {
+                        case "ADMINISTRADOR":
                             window.location.href = "/administrador/";
                             break;
-                        case "Vendedor":
+                        case "VENDEDOR":
                             window.location.href = "/vendedor/";
                             break;
-                        case "Contador":
+                        case "CONTADOR":
                             window.location.href = "/contador/";
                             break;
                         default:

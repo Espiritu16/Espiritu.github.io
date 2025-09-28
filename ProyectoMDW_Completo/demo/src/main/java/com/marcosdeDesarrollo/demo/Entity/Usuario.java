@@ -17,6 +17,8 @@ public class Usuario {
     @Column(name = "contrasena")
     private String password;
 
+    @Column(name = "nombre_usuario", nullable = false, unique = true)
+    private String nombreUsuario;
 
     @ManyToOne
     @JoinColumn(name = "id_rol")
@@ -45,6 +47,14 @@ public class Usuario {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
     }
 
     public Rol getRol() {

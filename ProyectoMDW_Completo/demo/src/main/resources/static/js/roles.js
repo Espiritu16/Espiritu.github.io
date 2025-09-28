@@ -1,7 +1,9 @@
 const ROLES_API = '/api/roles';
+const PERMISOS_API = '/api/permisos';
 const TOKEN_KEY = 'jwtToken';
 
 let roles = [];
+let permisosCatalogo = [];
 let rolEnEdicion = null;
 let filtroRol = 'all';
 
@@ -14,6 +16,7 @@ const modalTitle = document.getElementById('modalLabel');
 const inputNombre = document.getElementById('nombreRol');
 const inputDescripcion = document.getElementById('descripcionRol');
 const inputRolId = document.getElementById('rolId');
+const checklistPermisos = document.getElementById('permisosChecklist');
 
 function obtenerToken() {
   return sessionStorage.getItem(TOKEN_KEY);
@@ -29,13 +32,36 @@ async function fetchConToken(url, options = {}) {
   return fetch(url, { ...options, headers });
 }
 
+async function cargarPermisos() {
+  try {
+    const response = await fetchConToken(PERMISOS_API, { method: 'GET' });
+    if (!response.ok) {
+      throw new Error('No se pudieron cargar los permisos');
+    }
+    permisosCatalogo = await response.json();
+    renderPermisosChecklist();
+  } catch (error) {
+    console.error('❌ Error al cargar permisos:', error);
+    mostrarMensaje(error.message || 'No se pudieron cargar los permisos', 'danger');
+    permisosCatalogo = [];
+    renderPermisosChecklist();
+  }
+}
+
+
 function formatoFecha(fechaIso) {
   if (!fechaIso) {
     return '—';
   }
   try {
     const fecha = new Date(fechaIso);
-    return fecha.toLocaleDateString();
+    return fecha.toLocaleString('es-PE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   } catch (e) {
     return fechaIso;
   }
@@ -54,7 +80,7 @@ function renderRoles() {
   if (!roles.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 5;
+    cell.colSpan = 7;
     cell.className = 'text-center text-secondary py-3';
     cell.textContent = 'No hay roles registrados todavía.';
     row.appendChild(cell);
@@ -68,7 +94,7 @@ function renderRoles() {
   if (!filtrados.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 5;
+    cell.colSpan = 7;
     cell.className = 'text-center text-secondary py-3';
     cell.textContent = 'No hay roles que coincidan con este filtro.';
     row.appendChild(cell);
@@ -84,13 +110,20 @@ function renderRoles() {
       <td>${rol.descripcion ? rol.descripcion : '—'}</td>
       <td class="text-center">${rol.usuariosAsignados}</td>
       <td>${formatoFecha(rol.fechaCreacion)}</td>
+      <td>${formatoFecha(rol.ultimaActualizacion)}</td>
+      <td>${rol.actualizadoPor ? rol.actualizadoPor : '—'}</td>
       <td class="d-flex gap-2">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-accion="editar">Editar</button>
-        <button type="button" class="btn btn-sm btn-outline-info" data-accion="permisos">Permisos</button>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Permisos
+          </button>
+          <ul class="dropdown-menu permis-lista"></ul>
+        </div>
       </td>
     `;
     row.querySelector('[data-accion="editar"]').addEventListener('click', () => abrirModalEdicion(rol));
-    row.querySelector('[data-accion="permisos"]').addEventListener('click', () => mostrarMensaje('La gestión de permisos estará disponible próximamente.'));
+    construirDropdownPermisos(row, rol);
     tablaBody.appendChild(row);
   });
 
@@ -116,6 +149,10 @@ function abrirModalCreacion() {
   formRol.reset();
   inputRolId.value = '';
   modalTitle.textContent = 'Crear rol';
+  if (inputNombre) {
+    inputNombre.selectedIndex = 0;
+  }
+  renderPermisosChecklist(obtenerPermisosPorRolDefecto(inputNombre ? inputNombre.value : null));
   if (rolModal) {
     rolModal.show();
   }
@@ -124,9 +161,23 @@ function abrirModalCreacion() {
 function abrirModalEdicion(rol) {
   rolEnEdicion = rol;
   inputRolId.value = rol.id;
-  inputNombre.value = rol.nombre;
+  if (inputNombre) {
+    const valorOriginal = rol.nombre || '';
+    const valor = valorOriginal.toUpperCase();
+    let optionExiste = Array.from(inputNombre.options).some(opt => opt.value === valor);
+    if (!optionExiste && valor) {
+      const nuevaOpcion = document.createElement('option');
+      nuevaOpcion.value = valor;
+      nuevaOpcion.textContent = valorOriginal || valor;
+      inputNombre.appendChild(nuevaOpcion);
+      optionExiste = true;
+    }
+    inputNombre.value = optionExiste ? valor : '';
+  }
   inputDescripcion.value = rol.descripcion || '';
   modalTitle.textContent = 'Editar rol';
+  const seleccionados = (rol.permisos || []).map((permiso) => permiso.id);
+  renderPermisosChecklist(seleccionados);
   if (rolModal) {
     rolModal.show();
   }
@@ -138,6 +189,7 @@ async function guardarRol(event) {
   const payload = {
     nombre: inputNombre.value,
     descripcion: inputDescripcion.value || null,
+    permisosIds: obtenerPermisosSeleccionados(),
   };
 
   const rolId = inputRolId.value;
@@ -180,17 +232,23 @@ function inicializarEventos() {
     formRol.addEventListener('submit', guardarRol);
   }
 
-  const btnExportar = document.getElementById('btnExportar');
-  if (btnExportar) {
-    btnExportar.addEventListener('click', () => mostrarMensaje('Función de exportación en desarrollo.'));
+  if (inputNombre) {
+    inputNombre.addEventListener('change', () => {
+      if (rolEnEdicion) {
+        return;
+      }
+      const seleccion = obtenerPermisosPorRolDefecto(inputNombre.value);
+      renderPermisosChecklist(seleccion);
+    });
   }
 
   configurarTabsRol();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   inicializarEventos();
-  cargarRoles();
+  await cargarPermisos();
+  await cargarRoles();
 });
 
 function configurarTabsRol() {
@@ -243,4 +301,127 @@ function coincideConFiltro(nombreRol) {
     default:
       return true;
   }
+}
+
+function renderPermisosChecklist(seleccionados = []) {
+  if (!checklistPermisos) {
+    return;
+  }
+
+  checklistPermisos.innerHTML = '';
+
+  if (!permisosCatalogo.length) {
+    const aviso = document.createElement('div');
+    aviso.className = 'text-secondary small';
+    aviso.textContent = 'Sin registros de permisos';
+    checklistPermisos.appendChild(aviso);
+    return;
+  }
+
+  const seleccionSet = new Set(seleccionados || []);
+
+  const listaOrdenada = [...permisosCatalogo].sort((a, b) => {
+    const nombreA = (a.nombre || '').toLowerCase();
+    const nombreB = (b.nombre || '').toLowerCase();
+    return nombreA.localeCompare(nombreB);
+  });
+
+  listaOrdenada.forEach((permiso) => {
+    const col = document.createElement('div');
+    col.className = 'col';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'form-check';
+
+    const input = document.createElement('input');
+    input.className = 'form-check-input';
+    input.type = 'checkbox';
+    input.id = `permiso-${permiso.id}`;
+    input.value = permiso.id;
+    input.name = 'permisoRol';
+    if (seleccionSet.has(permiso.id)) {
+      input.checked = true;
+    }
+
+    const label = document.createElement('label');
+    label.className = 'form-check-label';
+    label.setAttribute('for', `permiso-${permiso.id}`);
+    label.textContent = permiso.nombre;
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(label);
+
+    if (permiso.descripcion) {
+      const hint = document.createElement('div');
+      hint.className = 'form-text';
+      hint.textContent = permiso.descripcion;
+      wrapper.appendChild(hint);
+    }
+
+    col.appendChild(wrapper);
+    checklistPermisos.appendChild(col);
+  });
+}
+
+function obtenerPermisosSeleccionados() {
+  if (!checklistPermisos) {
+    return [];
+  }
+  return Array.from(checklistPermisos.querySelectorAll('input[name="permisoRol"]:checked')).map((input) => parseInt(input.value, 10));
+}
+
+function obtenerPermisosPorRolDefecto(nombreRol) {
+  if (!nombreRol) {
+    return [];
+  }
+  const nombre = nombreRol.trim().toUpperCase();
+  let objetivos;
+  switch (nombre) {
+    case 'ADMINISTRADOR':
+      return permisosCatalogo.map((permiso) => permiso.id);
+    case 'CONTADOR':
+      objetivos = ['ver'];
+      break;
+    case 'VENDEDOR':
+      objetivos = ['crear', 'editar', 'eliminar', 'ver'];
+      break;
+    default:
+      return [];
+  }
+  const objetivosSet = new Set(objetivos.map((p) => p.toLowerCase()));
+  return permisosCatalogo
+          .filter((permiso) => objetivosSet.has((permiso.nombre || '').toLowerCase()))
+          .map((permiso) => permiso.id);
+}
+
+function construirDropdownPermisos(row, rol) {
+  const lista = row.querySelector('.permis-lista');
+  if (!lista) {
+    return;
+  }
+
+  lista.innerHTML = '';
+
+  if (!rol.permisos || rol.permisos.length === 0) {
+    const li = document.createElement('li');
+    const empty = document.createElement('span');
+    empty.className = 'dropdown-item text-secondary';
+    empty.textContent = 'Sin permisos asignados';
+    li.appendChild(empty);
+    lista.appendChild(li);
+    return;
+  }
+
+  rol.permisos.forEach((permiso) => {
+    const li = document.createElement('li');
+    const item = document.createElement('span');
+    item.className = 'dropdown-item';
+    const nombre = permiso && permiso.nombre ? permiso.nombre : permiso;
+    item.textContent = nombre;
+    if (permiso && permiso.descripcion) {
+      item.title = permiso.descripcion;
+    }
+    li.appendChild(item);
+    lista.appendChild(li);
+  });
 }

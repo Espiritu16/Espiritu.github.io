@@ -1,11 +1,17 @@
 package com.marcosdeDesarrollo.demo.DTO;
 
-import java.util.List;
-
-public class RolRequestDto {
+public class PermisoResponseDto {
+    private Integer id;
     private String nombre;
     private String descripcion;
-    private List<Integer> permisosIds;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getNombre() {
         return nombre;
@@ -21,13 +27,5 @@ public class RolRequestDto {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-
-    public List<Integer> getPermisosIds() {
-        return permisosIds;
-    }
-
-    public void setPermisosIds(List<Integer> permisosIds) {
-        this.permisosIds = permisosIds;
     }
 }

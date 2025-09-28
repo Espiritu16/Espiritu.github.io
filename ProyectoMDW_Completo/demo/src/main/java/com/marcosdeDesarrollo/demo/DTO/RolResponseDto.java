@@ -1,6 +1,7 @@
 package com.marcosdeDesarrollo.demo.DTO;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class RolResponseDto {
     private Integer id;
@@ -8,6 +9,9 @@ public class RolResponseDto {
     private String descripcion;
     private long usuariosAsignados;
     private LocalDateTime fechaCreacion;
+    private List<PermisoResponseDto> permisos;
+    private LocalDateTime ultimaActualizacion;
+    private String actualizadoPor;
 
     public Integer getId() {
         return id;
@@ -47,5 +51,29 @@ public class RolResponseDto {
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public List<PermisoResponseDto> getPermisos() {
+        return permisos;
+    }
+
+    public void setPermisos(List<PermisoResponseDto> permisos) {
+        this.permisos = permisos;
+    }
+
+    public LocalDateTime getUltimaActualizacion() {
+        return ultimaActualizacion;
+    }
+
+    public void setUltimaActualizacion(LocalDateTime ultimaActualizacion) {
+        this.ultimaActualizacion = ultimaActualizacion;
+    }
+
+    public String getActualizadoPor() {
+        return actualizadoPor;
+    }
+
+    public void setActualizadoPor(String actualizadoPor) {
+        this.actualizadoPor = actualizadoPor;
     }
 }

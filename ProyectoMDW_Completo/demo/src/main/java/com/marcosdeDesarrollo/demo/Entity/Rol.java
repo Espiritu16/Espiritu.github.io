@@ -2,6 +2,8 @@ package com.marcosdeDesarrollo.demo.Entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
@@ -20,6 +22,12 @@ public class Rol {
 
     @Column(name = "fecha_creacion", insertable = false, updatable = false)
     private LocalDateTime fechaCreacion;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "rol_permisos",
+            joinColumns = @JoinColumn(name = "id_rol"),
+            inverseJoinColumns = @JoinColumn(name = "id_permiso"))
+    private Set<Permiso> permisos = new HashSet<>();
 
 
     public Integer getId() {
@@ -52,5 +60,13 @@ public class Rol {
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public Set<Permiso> getPermisos() {
+        return permisos;
+    }
+
+    public void setPermisos(Set<Permiso> permisos) {
+        this.permisos = permisos;
     }
 }
