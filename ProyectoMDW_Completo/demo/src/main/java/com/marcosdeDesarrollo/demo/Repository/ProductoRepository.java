@@ -15,14 +15,10 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>, JpaSp
     // Método para contar productos activos
     long countByEstado(Estado estado);
 
-    // Método para contar productos con stock bajo (menor a 20)
-    long countByStockActualLessThan(int stock);
-
-    // Método case-insensitive
     boolean existsBySkuIgnoreCase(String sku);
 
     boolean existsBySkuIgnoreCaseAndIdProductoNot(String sku, Long idProducto);
 
-    long countByEstadoAndStockActualLessThan(Estado estado, int stock);
+    long countByStockActualLessThan(int stock);
 
 }

@@ -61,11 +61,11 @@ public class ProductoService {
     }
 
     public long contarStockBajo() {
-        return productoRepository.countByEstadoAndStockActualLessThan(Estado.Activo, STOCK_UMBRAL_BAJO);
+        return productoRepository.countByStockActualLessThan(STOCK_UMBRAL_BAJO);
     }
 
     public long contarTotalProductos() {
-        return contarProductosActivos();
+        return productoRepository.count();
     }
 
     public ProductoResponseDto guardarProducto(ProductoRequestDto productoDto) {
