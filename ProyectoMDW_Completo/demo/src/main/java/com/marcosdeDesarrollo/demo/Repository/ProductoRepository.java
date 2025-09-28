@@ -2,10 +2,11 @@ package com.marcosdeDesarrollo.demo.Repository;
 import com.marcosdeDesarrollo.demo.Entity.Estado;
 import com.marcosdeDesarrollo.demo.Entity.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductoRepository extends JpaRepository<Producto, Long> {
+public interface ProductoRepository extends JpaRepository<Producto, Long>, JpaSpecificationExecutor<Producto> {
     // Métodos para SKU
     boolean existsBySku(String sku);
 
@@ -19,5 +20,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     // Método case-insensitive
     boolean existsBySkuIgnoreCase(String sku);
+
+    boolean existsBySkuIgnoreCaseAndIdProductoNot(String sku, Long idProducto);
+
+    long countByEstadoAndStockActualLessThan(Estado estado, int stock);
 
 }

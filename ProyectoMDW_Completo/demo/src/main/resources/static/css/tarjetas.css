@@ -43,6 +43,10 @@
 .kpi-green {
   background: linear-gradient(135deg, #36d27f, #19b86d 60%, #0e7f48);
 }
+.kpi-gray {
+  background: linear-gradient(135deg, #868991, #6b6e76 60%, #4a4c52);
+  color: var(--sidebar-text);
+}
 .kpi-amber {
   background: linear-gradient(135deg, #ffc261, #ffab2e 60%, #c8780f);
   color: #2b2b2b;

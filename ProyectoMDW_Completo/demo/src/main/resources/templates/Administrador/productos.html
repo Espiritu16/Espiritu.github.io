@@ -46,7 +46,7 @@
 
             <div class="input-group" style="max-width: 360px">
               <span class="input-group-text"><i class="bi bi-search"></i></span>
-              <input type="text" class="form-control" placeholder="Buscar producto, SKU…" />
+              <input type="text" class="form-control" id="buscarProducto" placeholder="Buscar producto, SKU…" />
             </div>
 
             <div class="dropdown">
@@ -93,8 +93,8 @@
                   </select>
                 </div>
 
-                <!-- Botón de Aplicar Filtros -->
-                <button type="button" class="btn btn-primary w-100" id="applyFilters">Aplicar</button>
+                <!-- Botón de Limpiar Filtros -->
+                <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters">Limpiar filtros</button>
               </div>
             </div>
 
@@ -125,6 +125,15 @@
               </div>
             </div>
             <div class="col-sm-6 col-lg-3">
+              <div class="kpi kpi-gray">
+                <div class="kpi-icon"><i class="bi bi-pause-circle"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-title">Inactivos</div>
+                  <div class="kpi-value fs-4 fw-semibold" id="productosInactivos">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
               <div class="kpi kpi-red">
                 <div class="kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
                 <div class="kpi-body">
@@ -133,6 +142,26 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Paginación -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" id="paginacionContainer">
+            <div class="text-muted small" id="paginacionResumen">Sin productos para mostrar</div>
+            <nav>
+              <ul class="pagination pagination-sm mb-0" id="paginacionLista"></ul>
+            </nav>
+          </div>
+
+          <!-- Tabs de estado -->
+          <div class="d-flex justify-content-start mb-3">
+            <ul class="nav nav-pills" id="estadoTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" type="button" data-estado-tab="Activo" role="tab">Activos</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" type="button" data-estado-tab="Inactivo" role="tab">Inactivos</button>
+              </li>
+            </ul>
           </div>
 
           <!-- Tabla -->
@@ -161,25 +190,6 @@
             </table>
           </div>
 
-          <!-- Footer tabla -->
-          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
-            <div class="text-muted small">Mostrando 1–10 de 148</div>
-            <nav>
-              <ul class="pagination pagination-sm mb-0">
-                <li class="page-item disabled">
-                  <span class="page-link">Anterior</span>
-                </li>
-                <li class="page-item active">
-                  <span class="page-link">1</span>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                  <a class="page-link" href="#">Siguiente</a>
-                </li>
-              </ul>
-            </nav>
-          </div>
         </div>
 
         <!-- Modal Crear producto -->
