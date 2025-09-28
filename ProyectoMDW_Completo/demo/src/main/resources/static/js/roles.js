@@ -1,126 +1,246 @@
+const ROLES_API = '/api/roles';
+const TOKEN_KEY = 'jwtToken';
+
+let roles = [];
+let rolEnEdicion = null;
+let filtroRol = 'all';
+
+const tablaBody = document.querySelector('#tablaRoles tbody');
+const infoRegistros = document.getElementById('infoRegistros');
+const formRol = document.getElementById('formRol');
+const rolModalElement = document.getElementById('rolModal');
+const rolModal = rolModalElement ? new bootstrap.Modal(rolModalElement) : null;
+const modalTitle = document.getElementById('modalLabel');
+const inputNombre = document.getElementById('nombreRol');
+const inputDescripcion = document.getElementById('descripcionRol');
+const inputRolId = document.getElementById('rolId');
+
+function obtenerToken() {
+  return sessionStorage.getItem(TOKEN_KEY);
+}
+
+async function fetchConToken(url, options = {}) {
+  const headers = Object.assign({}, options.headers || {});
+  headers['Content-Type'] = 'application/json';
+  const token = obtenerToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return fetch(url, { ...options, headers });
+}
+
+function formatoFecha(fechaIso) {
+  if (!fechaIso) {
+    return '—';
+  }
+  try {
+    const fecha = new Date(fechaIso);
+    return fecha.toLocaleDateString();
+  } catch (e) {
+    return fechaIso;
+  }
+}
+
+function mostrarMensaje(mensaje, tipo = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `alert alert-${tipo}`;
+  toast.textContent = mensaje;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function renderRoles() {
+  tablaBody.innerHTML = '';
+  if (!roles.length) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 5;
+    cell.className = 'text-center text-secondary py-3';
+    cell.textContent = 'No hay roles registrados todavía.';
+    row.appendChild(cell);
+    tablaBody.appendChild(row);
+    infoRegistros.textContent = 'Sin registros';
+    return;
+  }
+
+  const filtrados = roles.filter((rol) => coincideConFiltro(rol.nombre));
+
+  if (!filtrados.length) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 5;
+    cell.className = 'text-center text-secondary py-3';
+    cell.textContent = 'No hay roles que coincidan con este filtro.';
+    row.appendChild(cell);
+    tablaBody.appendChild(row);
+    infoRegistros.textContent = `Sin registros para la pestaña seleccionada (Total: ${roles.length})`;
+    return;
+  }
+
+  filtrados.forEach((rol) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td class="fw-semibold">${rol.nombre}</td>
+      <td>${rol.descripcion ? rol.descripcion : '—'}</td>
+      <td class="text-center">${rol.usuariosAsignados}</td>
+      <td>${formatoFecha(rol.fechaCreacion)}</td>
+      <td class="d-flex gap-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-accion="editar">Editar</button>
+        <button type="button" class="btn btn-sm btn-outline-info" data-accion="permisos">Permisos</button>
+      </td>
+    `;
+    row.querySelector('[data-accion="editar"]').addEventListener('click', () => abrirModalEdicion(rol));
+    row.querySelector('[data-accion="permisos"]').addEventListener('click', () => mostrarMensaje('La gestión de permisos estará disponible próximamente.'));
+    tablaBody.appendChild(row);
+  });
+
+  infoRegistros.textContent = `Mostrando ${filtrados.length} rol${filtrados.length === 1 ? '' : 'es'} (de ${roles.length})`;
+}
+
+async function cargarRoles() {
+  try {
+    const response = await fetchConToken(ROLES_API, { method: 'GET' });
+    if (!response.ok) {
+      throw new Error('No se pudieron cargar los roles');
+    }
+    roles = await response.json();
+    renderRoles();
+  } catch (error) {
+    console.error('❌ Error al cargar roles:', error);
+    mostrarMensaje(error.message, 'danger');
+  }
+}
+
+function abrirModalCreacion() {
+  rolEnEdicion = null;
+  formRol.reset();
+  inputRolId.value = '';
+  modalTitle.textContent = 'Crear rol';
+  if (rolModal) {
+    rolModal.show();
+  }
+}
+
+function abrirModalEdicion(rol) {
+  rolEnEdicion = rol;
+  inputRolId.value = rol.id;
+  inputNombre.value = rol.nombre;
+  inputDescripcion.value = rol.descripcion || '';
+  modalTitle.textContent = 'Editar rol';
+  if (rolModal) {
+    rolModal.show();
+  }
+}
+
+async function guardarRol(event) {
+  event.preventDefault();
+
+  const payload = {
+    nombre: inputNombre.value,
+    descripcion: inputDescripcion.value || null,
+  };
+
+  const rolId = inputRolId.value;
+  const url = rolId ? `${ROLES_API}/${rolId}` : ROLES_API;
+  const method = rolId ? 'PUT' : 'POST';
+
+  try {
+    const response = await fetchConToken(url, {
+      method,
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.error || 'No se pudo guardar el rol');
+    }
+
+    const mensaje = rolId ? 'Rol actualizado correctamente.' : 'Rol creado correctamente.';
+    mostrarMensaje(mensaje, 'success');
+
+    if (rolModal) {
+      rolModal.hide();
+    }
+    formRol.reset();
+    rolEnEdicion = null;
+    await cargarRoles();
+  } catch (error) {
+    console.error('❌ Error al guardar rol:', error);
+    mostrarMensaje(error.message, 'danger');
+  }
+}
+
+function inicializarEventos() {
+  const btnAgregar = document.getElementById('btnAgregarRol');
+  if (btnAgregar) {
+    btnAgregar.addEventListener('click', abrirModalCreacion);
+  }
+
+  if (formRol) {
+    formRol.addEventListener('submit', guardarRol);
+  }
+
+  const btnExportar = document.getElementById('btnExportar');
+  if (btnExportar) {
+    btnExportar.addEventListener('click', () => mostrarMensaje('Función de exportación en desarrollo.'));
+  }
+
+  configurarTabsRol();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Referencias a los elementos del DOM
-    const tablaBody = document.querySelector('#tablaRoles tbody');
-    const infoRegistros = document.getElementById('infoRegistros');
-    const rolModal = new bootstrap.Modal(document.getElementById('rolModal'));
-    const modalTitle = document.getElementById('modalLabel');
-    const formRol = document.getElementById('formRol');
-    const rolIdInput = document.getElementById('rolId');
-    const nombreRolInput = document.getElementById('nombreRol');
-    const descripcionRolInput = document.getElementById('descripcionRol');
-    const comisionRolInput = document.getElementById('comisionRol');
-
-    // Datos de ejemplo para simular una base de datos de roles
-    let roles = [
-        { id: 3, nombre: 'VENDEDOR', descripcion: 'VENDEDOR', comision: 0.00 },
-        { id: 12, nombre: 'SUPERVISOR', descripcion: 'SUPERVISA LAS VENTAS CREA PROMOCIONES REALIZA', comision: 0.00 },
-        { id: 7, nombre: 'SOPORTE', descripcion: 'SOPORTE', comision: 0.00 },
-        { id: 5, nombre: 'INVENTARIADOR', descripcion: 'REALIZA INVENTARIO', comision: 0.00 },
-        { id: 11, nombre: 'CONTADOR', descripcion: 'CONTADOR', comision: 0.00 },
-        { id: 2, nombre: 'CLIENTES', descripcion: 'TODOS LOS CLIENTE', comision: 0.00 },
-        { id: 6, nombre: 'CAJERO VENDEDOR', descripcion: 'CAJERO VENDEDOR', comision: 10.00 },
-        { id: 10, nombre: 'CAJERO 2', descripcion: 'CAJERO 2', comision: 0.00 },
-        { id: 4, nombre: 'CAJERO', descripcion: 'CAJERO', comision: 0.00 },
-        { id: 1, nombre: 'ADMINISTRADOR', descripcion: 'TODOS LOS PERMISOS', comision: 0.00 },
-    ];
-
-    // Función para renderizar la tabla con los datos del array 'roles'
-    function renderizarTabla() {
-        tablaBody.innerHTML = ''; // Limpia la tabla
-        roles.forEach(rol => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${rol.id}</td>
-                <td>${rol.nombre}</td>
-                <td>${rol.descripcion}</td>
-                <td>S/. ${rol.comision.toFixed(2)}</td>
-                <td>
-                    <button class="btn btn-sm btn-info editar-btn" data-rol-id="${rol.id}"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn btn-sm btn-danger eliminar-btn" data-rol-id="${rol.id}"><i class="bi bi-trash"></i></button>
-                </td>
-            `;
-            tablaBody.appendChild(row);
-
-            // Agregar eventos a los botones de la nueva fila
-            row.querySelector('.editar-btn').addEventListener('click', () => editarRol(rol.id));
-            row.querySelector('.eliminar-btn').addEventListener('click', () => eliminarRol(rol.id));
-        });
-
-        // Actualiza el texto de información de registros
-        infoRegistros.textContent = `Mostrando registros del 1 al ${roles.length} de un total de ${roles.length} registros`;
-    }
-
-    // Funcionalidad para agregar o editar un rol
-    formRol.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const rolId = rolIdInput.value;
-        const nuevoRol = {
-            nombre: nombreRolInput.value,
-            descripcion: descripcionRolInput.value,
-            comision: parseFloat(comisionRolInput.value)
-        };
-
-        if (rolId) {
-            // Lógica para editar
-            const index = roles.findIndex(r => r.id == rolId);
-            if (index !== -1) {
-                roles[index].nombre = nuevoRol.nombre;
-                roles[index].descripcion = nuevoRol.descripcion;
-                roles[index].comision = nuevoRol.comision;
-                alert('Rol actualizado con éxito.');
-            }
-        } else {
-            // Lógica para agregar
-            nuevoRol.id = Date.now(); // Genera un ID único temporal
-            roles.push(nuevoRol);
-            alert('Rol agregado con éxito.');
-        }
-
-        renderizarTabla();
-        rolModal.hide();
-        formRol.reset();
-    });
-
-    // Función para llenar el formulario y abrir el modal para editar
-    function editarRol(id) {
-        const rol = roles.find(r => r.id === id);
-        if (rol) {
-            modalTitle.textContent = 'Editar Rol';
-            rolIdInput.value = rol.id;
-            nombreRolInput.value = rol.nombre;
-            descripcionRolInput.value = rol.descripcion;
-            comisionRolInput.value = rol.comision;
-            rolModal.show();
-        }
-    }
-
-    // Función para eliminar un rol
-    function eliminarRol(id) {
-        if (confirm(`¿Estás seguro de que deseas eliminar el rol #${id}?`)) {
-            roles = roles.filter(r => r.id !== id);
-            renderizarTabla();
-            alert('Rol eliminado con éxito.');
-        }
-    }
-
-    // Evento para el botón "Agregar Rol" para limpiar el formulario y abrir el modal
-    document.getElementById('btnAgregarRol').addEventListener('click', () => {
-        formRol.reset();
-        rolIdInput.value = '';
-        modalTitle.textContent = 'Agregar Nuevo Rol';
-    });
-
-    // Otros eventos de la página (Exportar, Mostrar registros)
-    document.getElementById('btnExportar').addEventListener('click', () => {
-        alert('Exportando la tabla...');
-    });
-
-    document.getElementById('selectRegistros').addEventListener('change', (e) => {
-        console.log(`Cambiado para mostrar ${e.target.value} registros.`);
-        // Lógica para filtrar registros si tienes muchos
-    });
-
-    // Llama a la función para renderizar la tabla al cargar la página
-    renderizarTabla();
+  inicializarEventos();
+  cargarRoles();
 });
+
+function configurarTabsRol() {
+  const tabs = document.querySelectorAll('#rolesTabs .nav-link');
+  if (!tabs.length) {
+    return;
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const rolFiltro = tab.dataset.rolTab || 'all';
+      if (rolFiltro === filtroRol) {
+        return;
+      }
+      filtroRol = rolFiltro;
+      actualizarTabsRolUI();
+      renderRoles();
+    });
+  });
+
+  actualizarTabsRolUI();
+}
+
+function actualizarTabsRolUI() {
+  const tabs = document.querySelectorAll('#rolesTabs .nav-link');
+  tabs.forEach((tab) => {
+    const rolFiltro = tab.dataset.rolTab || 'all';
+    if (rolFiltro === filtroRol) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+}
+
+function coincideConFiltro(nombreRol) {
+  if (filtroRol === 'all') {
+    return true;
+  }
+
+  const nombreNormalizado = (nombreRol || '').trim().toLowerCase();
+
+  switch (filtroRol) {
+    case 'administrador':
+      return nombreNormalizado.includes('admin');
+    case 'vendedor':
+      return nombreNormalizado.includes('vendedor');
+    case 'contador':
+      return nombreNormalizado.includes('contador');
+    default:
+      return true;
+  }
+}

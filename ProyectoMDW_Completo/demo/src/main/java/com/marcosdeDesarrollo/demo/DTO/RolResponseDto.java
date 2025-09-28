@@ -1,26 +1,13 @@
-package com.marcosdeDesarrollo.demo.Entity;
+package com.marcosdeDesarrollo.demo.DTO;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "roles")
-public class Rol {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_rol")
+public class RolResponseDto {
     private Integer id;
-
-    @Column(name = "nombre_rol")
     private String nombre;
-
-    @Column(name = "descripcion")
     private String descripcion;
-
-    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    private long usuariosAsignados;
     private LocalDateTime fechaCreacion;
-
 
     public Integer getId() {
         return id;
@@ -44,6 +31,14 @@ public class Rol {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public long getUsuariosAsignados() {
+        return usuariosAsignados;
+    }
+
+    public void setUsuariosAsignados(long usuariosAsignados) {
+        this.usuariosAsignados = usuariosAsignados;
     }
 
     public LocalDateTime getFechaCreacion() {

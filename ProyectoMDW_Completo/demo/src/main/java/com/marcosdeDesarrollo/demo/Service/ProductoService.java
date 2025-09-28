@@ -39,10 +39,10 @@ public class ProductoService {
 
     @Transactional(readOnly = true)
     public List<ProductoResponseDto> obtenerProductosFiltrados(String estado,
-                                                               String stock,
-                                                               String precio,
-                                                               Long categoriaId,
-                                                               String search) {
+            String stock,
+            String precio,
+            Long categoriaId,
+            String search) {
 
         Specification<Producto> spec = construirSpecification(estado, stock, precio, categoriaId, search);
 
@@ -194,11 +194,12 @@ public class ProductoService {
         producto.setCategoria(categoria);
     }
 
+    @SuppressWarnings("removal")
     private Specification<Producto> construirSpecification(String estado,
-                                                           String stock,
-                                                           String precio,
-                                                           Long categoriaId,
-                                                           String search) {
+            String stock,
+            String precio,
+            Long categoriaId,
+            String search) {
         Specification<Producto> spec = Specification.where(null);
 
         if (estado != null && !estado.isBlank()) {
@@ -209,8 +210,10 @@ public class ProductoService {
         if (stock != null && !stock.isBlank()) {
             String stockLower = stock.toLowerCase(Locale.ROOT);
             switch (stockLower) {
-                case "bajo" -> spec = spec.and((root, query, cb) -> cb.lessThan(root.get("stockActual"), STOCK_UMBRAL_BAJO));
-                case "alto" -> spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("stockActual"), STOCK_UMBRAL_BAJO));
+                case "bajo" ->
+                    spec = spec.and((root, query, cb) -> cb.lessThan(root.get("stockActual"), STOCK_UMBRAL_BAJO));
+                case "alto" -> spec = spec
+                        .and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("stockActual"), STOCK_UMBRAL_BAJO));
                 default -> {
                 }
             }
@@ -219,9 +222,12 @@ public class ProductoService {
         if (precio != null && !precio.isBlank()) {
             String precioLower = precio.toLowerCase(Locale.ROOT);
             switch (precioLower) {
-                case "economico" -> spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("precio"), PRECIO_ECONOMICO_MAX));
-                case "medio" -> spec = spec.and((root, query, cb) -> cb.between(root.get("precio"), PRECIO_MEDIO_MIN, PRECIO_MEDIO_MAX));
-                case "premium" -> spec = spec.and((root, query, cb) -> cb.greaterThan(root.get("precio"), PRECIO_MEDIO_MAX));
+                case "economico" -> spec = spec
+                        .and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("precio"), PRECIO_ECONOMICO_MAX));
+                case "medio" -> spec = spec
+                        .and((root, query, cb) -> cb.between(root.get("precio"), PRECIO_MEDIO_MIN, PRECIO_MEDIO_MAX));
+                case "premium" ->
+                    spec = spec.and((root, query, cb) -> cb.greaterThan(root.get("precio"), PRECIO_MEDIO_MAX));
                 default -> {
                 }
             }
@@ -235,8 +241,7 @@ public class ProductoService {
             String criterio = "%" + search.trim().toLowerCase(Locale.ROOT) + "%";
             spec = spec.and((root, query, cb) -> cb.or(
                     cb.like(cb.lower(root.get("nombreProducto")), criterio),
-                    cb.like(cb.lower(root.get("sku")), criterio)
-            ));
+                    cb.like(cb.lower(root.get("sku")), criterio)));
         }
 
         return spec;

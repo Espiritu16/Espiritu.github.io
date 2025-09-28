@@ -34,30 +34,31 @@
       <main class="app-content">
         <div id="page-content-wrapper" class="p-4 flex-grow-1">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h2 mb-0">
-              Rol <span class="text-secondary fw-light">Listado</span>
-            </h1>
-          </div>
-
-          <div class="d-flex align-items-center gap-2 mb-3">
+            <div>
+              <h1 class="h2 mb-1">Roles</h1>
+              <p class="text-secondary mb-0">Administra los perfiles y sus permisos.</p>
+            </div>
             <button type="button" class="btn btn-primary" id="btnAgregarRol" data-bs-toggle="modal"
               data-bs-target="#rolModal">
-              <i class="bi bi-plus-circle me-2"></i>Agregar Rol
+              <i class="bi bi-plus-circle me-2"></i>Nuevo rol
             </button>
-            <div class="d-flex align-items-center gap-2 ms-auto">
-              <span class="text-secondary">Mostrar</span>
-              <label for="selectRegistros" class="d-none">Selecciona una opcion</label>
-              <select class="form-select form-select-sm" id="selectRegistros" style="width: auto">
-                <option value="10" selected>10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-              <span class="text-secondary">Registros</span>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnExportar">
-                Exportar
-              </button>
-            </div>
+          </div>
+
+          <div class="d-flex justify-content-start mb-3">
+            <ul class="nav nav-pills" id="rolesTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" type="button" data-rol-tab="all" role="tab">Todos</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" type="button" data-rol-tab="administrador" role="tab">Administradores</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" type="button" data-rol-tab="vendedor" role="tab">Vendedores</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" type="button" data-rol-tab="contador" role="tab">Contadores</button>
+              </li>
+            </ul>
           </div>
 
           <div class="card shadow-sm">
@@ -66,11 +67,11 @@
                 <table class="table table-striped table-hover mb-0" id="tablaRoles">
                   <thead>
                     <tr>
-                      <th scope="col">ID</th>
-                      <th scope="col">Nombre</th>
-                      <th scope="col">Descripcion</th>
-                      <th scope="col">Comision</th>
-                      <th scope="col">Opciones</th>
+                      <th scope="col">Rol</th>
+                      <th scope="col">Descripción</th>
+                      <th scope="col" class="text-center">Usuarios asignados</th>
+                      <th scope="col">Creado</th>
+                      <th scope="col">Acciones</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -78,8 +79,8 @@
               </div>
             </div>
           </div>
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <span class="text-secondary small" id="infoRegistros"></span>
+          <div class="d-flex justify-content-between align-items-center mt-3" id="rolesPaginacion">
+            <span class="text-secondary small" id="infoRegistros">Sin registros</span>
           </div>
         </div>
       </main>
@@ -104,12 +105,8 @@
               <label for="descripcionRol" class="form-label">Descripción</label>
               <textarea class="form-control" id="descripcionRol" rows="3"></textarea>
             </div>
-            <div class="mb-3">
-              <label for="comisionRol" class="form-label">Comisión (%)</label>
-              <input type="number" class="form-control" id="comisionRol" step="0.01" min="0" />
-            </div>
             <button type="submit" class="btn btn-success" id="GuardarRol">
-              Guardar Rol
+              Guardar
             </button>
           </form>
         </div>
