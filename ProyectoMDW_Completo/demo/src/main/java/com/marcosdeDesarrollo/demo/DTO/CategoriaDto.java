@@ -13,7 +13,6 @@ public class CategoriaDto {
     public Long getIdCategoria() {
         return idCategoria;
     }
-
     public void setIdCategoria(Long idCategoria) {
         this.idCategoria = idCategoria;
     }
