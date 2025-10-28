@@ -1,9 +1,3 @@
-/**
- * productos.js - Lógica para el módulo de Productos
- * Gestiona listados, filtros, creación, edición y cambios de estado
- * contra el backend de Spring Boot mediante fetch + JSON.
- */
-
 const API_PRODUCTOS = '/api/productos';
 const API_CATEGORIAS = '/api/categorias';
 const TOKEN_KEY = 'jwtToken';
@@ -15,13 +9,14 @@ let productoEnEdicion = null;
 let debounceTimer = null;
 let estadoTabSeleccionado = 'Activo';
 let currentPage = 1;
-
+// Inicialización al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     inicializarEventos();
     refrescarProductos();
     cargarEstadisticas();
 });
 
+// Inicializa los eventos de la página
 function inicializarEventos() {
     const modalCrear = document.getElementById('modalCrearProducto');
     if (modalCrear) {
@@ -88,6 +83,7 @@ function inicializarEventos() {
     configurarTabsEstado();
 }
 
+// Refresca la lista de productos desde la API aplicando los filtros actuales
 async function refrescarProductos() {
     try {
         limpiarError();
@@ -109,6 +105,7 @@ async function refrescarProductos() {
     }
 }
 
+// Construye la query string basada en los filtros seleccionados
 function construirQueryFiltros() {
     const params = new URLSearchParams();
 
@@ -140,6 +137,7 @@ function construirQueryFiltros() {
     return params.toString();
 }
 
+// Limpia todos los filtros y restablece la vista a los productos activos
 function limpiarFiltros() {
     estadoTabSeleccionado = 'Activo';
     currentPage = 1;
@@ -157,6 +155,7 @@ function limpiarFiltros() {
     refrescarProductos();
 }
 
+// Muestra los productos en la tabla
 function mostrarProductos(productos) {
     const tableBody = obtenerTablaProductos();
     if (!tableBody) {
@@ -181,6 +180,7 @@ function mostrarProductos(productos) {
     });
 }
 
+// Renderiza los productos actuales con paginación
 function renderProductos() {
     const total = productosActuales.length;
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -204,6 +204,7 @@ function renderProductos() {
     actualizarPaginacionUI(total, totalPages, startIndex, endIndex);
 }
 
+// Actualiza la UI de paginación
 function actualizarPaginacionUI(total, totalPages, startIndex, endIndex) {
     const container = document.getElementById('paginacionContainer');
     const resumen = document.getElementById('paginacionResumen');
@@ -261,6 +262,7 @@ function actualizarPaginacionUI(total, totalPages, startIndex, endIndex) {
     lista.appendChild(nextLi);
 }
 
+// Cambia a la página especificada, asegurando que esté dentro de los límites válidos
 function cambiarPagina(page) {
     const totalPages = Math.max(1, Math.ceil(productosActuales.length / PAGE_SIZE));
     const paginaNormalizada = Math.min(Math.max(page, 1), totalPages);
@@ -273,6 +275,7 @@ function cambiarPagina(page) {
     renderProductos();
 }
 
+// Obtiene el cuerpo de la tabla de productos, soporta dos posibles estructuras
 function obtenerTablaProductos() {
     return document.querySelector('#productos-body') || document.querySelector('#tablaProductos tbody');
 }
@@ -336,6 +339,7 @@ function crearFilaProducto(producto) {
     return row;
 }
 
+// Crear un nuevo producto desde el modal
 async function crearProducto() {
     const form = document.getElementById('formCrearProducto');
     if (!form) {
@@ -390,6 +394,7 @@ async function crearProducto() {
     }
 }
 
+// Actualizar un producto existente desde el modal de edición
 async function actualizarProductoDesdeModal() {
     if (!productoEnEdicion) {
         alert('Selecciona un producto para editar.');
@@ -451,6 +456,7 @@ async function actualizarProductoDesdeModal() {
     }
 }
 
+// Cambiar el estado (Activo/Inactivo) de un producto
 async function cambiarEstadoProducto(idProducto, estadoActual) {
     const nuevoEstado = estadoActual === 'Activo' ? 'Inactivo' : 'Activo';
 
@@ -477,6 +483,7 @@ async function cambiarEstadoProducto(idProducto, estadoActual) {
     }
 }
 
+// Prepara el modal de edición con los datos del producto seleccionado
 function prepararEdicionProducto(idProducto) {
     const producto = productosActuales.find(p => p.idProducto === idProducto);
     if (!producto) {
@@ -514,6 +521,7 @@ function mostrarError(message) {
     errorElement.style.display = 'block';
 }
 
+// Limpiar mensajes de error de la interfaz
 function limpiarError() {
     const errorElement = document.getElementById('productos-error');
     if (errorElement) {
@@ -522,6 +530,7 @@ function limpiarError() {
     }
 }
 
+// Carga y muestra las estadísticas de productos
 async function cargarEstadisticas() {
     try {
         const response = await fetchConToken(`${API_PRODUCTOS}/estadisticas`, { method: 'GET' });
@@ -536,6 +545,7 @@ async function cargarEstadisticas() {
     }
 }
 
+// Muestra las estadísticas en la interfaz
 function mostrarEstadisticas(estadisticas) {
     document.getElementById('totalProductos').textContent = estadisticas.totalProductos;
     document.getElementById('productosActivos').textContent = estadisticas.productosActivos;
@@ -546,6 +556,7 @@ function mostrarEstadisticas(estadisticas) {
     }
 }
 
+// Carga las categorías en el select dado, selecciona selectedId si se proporciona
 async function cargarCategorias(selectElement, selectedId, placeholderText) {
     const select = selectElement || document.getElementById('idCategoria');
     if (!select) {
@@ -597,6 +608,7 @@ async function cargarCategorias(selectElement, selectedId, placeholderText) {
     }
 }
 
+// Configura los eventos de los tabs de estado y sincroniza con el select
 function configurarTabsEstado() {
     const tabs = document.querySelectorAll('#estadoTabs .nav-link');
     if (!tabs.length) {
@@ -619,6 +631,7 @@ function configurarTabsEstado() {
     actualizarTabsEstadoUI();
 }
 
+// Actualiza la UI de los tabs y el select de estado para reflejar el estado seleccionado
 function actualizarTabsEstadoUI() {
     const tabs = document.querySelectorAll('#estadoTabs .nav-link');
     if (tabs.length) {
@@ -635,6 +648,7 @@ function actualizarTabsEstadoUI() {
     setSelectValue('filtroEstado', estadoTabSeleccionado);
 }
 
+// Obtiene el valor de un select, retorna '' si no existe o está vacío
 function obtenerValorSelect(id) {
     const element = document.getElementById(id);
     if (!element) {
@@ -644,11 +658,13 @@ function obtenerValorSelect(id) {
     return value && value.trim() !== '' ? value : '';
 }
 
+// Obtiene el valor de un input, retorna '' si no existe
 function obtenerValorInput(id) {
     const element = document.getElementById(id);
     return element ? element.value : '';
 }
 
+// Establece el valor de un input, usa '' si el valor es null o undefined
 function setInputValue(id, value) {
     const element = document.getElementById(id);
     if (element) {
@@ -656,6 +672,7 @@ function setInputValue(id, value) {
     }
 }
 
+// Establece el valor de un select, usa '' si el valor es null o undefined
 function setSelectValue(id, value) {
     const element = document.getElementById(id);
     if (element) {
@@ -663,16 +680,19 @@ function setSelectValue(id, value) {
     }
 }
 
+// Convierte una cadena a número entero, retorna null si no es válido
 function parseEntero(valor) {
     const numero = parseInt(valor, 10);
     return Number.isFinite(numero) ? numero : null;
 }
 
+// Convierte una cadena a número decimal, retorna null si no es válido
 function parseDecimal(valor) {
     const numero = parseFloat(valor);
     return Number.isFinite(numero) ? numero : null;
 }
 
+// Normaliza texto: trim y convierte cadenas vacías a null
 function normalizarTexto(valor) {
     if (valor === undefined || valor === null) {
         return null;
@@ -681,16 +701,20 @@ function normalizarTexto(valor) {
     return texto === '' ? null : texto;
 }
 
+// Genera un SKU único basado en timestamp y un número aleatorio
 function generarSKUUnico() {
     const random = Math.floor(Math.random() * 10000);
     return `SKU-${Date.now().toString().slice(-6)}-${random}`;
 }
 
+// Función de debounce para limitar la frecuencia de ejecución de una función
 function debounce(callback, delay) {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(callback, delay);
 }
 
+
+//funcion para hacer una peticion ajax con el token incluido
 async function fetchConToken(url, options = {}) {
     const token = sessionStorage.getItem(TOKEN_KEY);
     const headers = Object.assign({}, options.headers || {});

@@ -77,10 +77,14 @@ function mostrarMensaje(mensaje, tipo = 'info') {
 
 function renderRoles() {
   tablaBody.innerHTML = '';
+  const mostrarColUsuarios = filtroRol !== 'all';
+  document.querySelectorAll('th.col-usuarios').forEach(th => {
+    th.style.display = mostrarColUsuarios ? '' : 'none';
+  });
   if (!roles.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 7;
+    cell.colSpan = 8;
     cell.className = 'text-center text-secondary py-3';
     cell.textContent = 'No hay roles registrados todavía.';
     row.appendChild(cell);
@@ -94,7 +98,7 @@ function renderRoles() {
   if (!filtrados.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 7;
+    cell.colSpan = 8;
     cell.className = 'text-center text-secondary py-3';
     cell.textContent = 'No hay roles que coincidan con este filtro.';
     row.appendChild(cell);
@@ -109,25 +113,23 @@ function renderRoles() {
       <td class="fw-semibold">${rol.nombre}</td>
       <td>${rol.descripcion ? rol.descripcion : '—'}</td>
       <td class="text-center">${rol.usuariosAsignados}</td>
+      <td class="col-usuarios">${formatearUsuarios(rol.usuarios)}</td>
       <td>${formatoFecha(rol.fechaCreacion)}</td>
       <td>${formatoFecha(rol.ultimaActualizacion)}</td>
       <td>${rol.actualizadoPor ? rol.actualizadoPor : '—'}</td>
       <td class="d-flex gap-2">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-accion="editar">Editar</button>
-        <div class="dropdown">
-          <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Permisos
-          </button>
-          <ul class="dropdown-menu permis-lista"></ul>
-        </div>
       </td>
     `;
     row.querySelector('[data-accion="editar"]').addEventListener('click', () => abrirModalEdicion(rol));
-    construirDropdownPermisos(row, rol);
+    if (!mostrarColUsuarios) {
+      row.querySelectorAll('.col-usuarios').forEach(td => td.style.display = 'none');
+    }
     tablaBody.appendChild(row);
   });
 
   infoRegistros.textContent = `Mostrando ${filtrados.length} rol${filtrados.length === 1 ? '' : 'es'} (de ${roles.length})`;
+  actualizarKpisRoles();
 }
 
 async function cargarRoles() {
@@ -424,4 +426,44 @@ function construirDropdownPermisos(row, rol) {
     li.appendChild(item);
     lista.appendChild(li);
   });
+}
+
+function formatearUsuarios(lista) {
+  if (!lista || !lista.length) {
+    return '—';
+  }
+  const max = 3;
+  if (lista.length <= max) {
+    return lista.join(', ');
+  }
+  return `${lista.slice(0, max).join(', ')} y ${lista.length - max} más`;
+}
+
+function actualizarKpisRoles() {
+  const totalRoles = roles.length;
+  const totalUsuariosActivos = roles.reduce((sum, rol) => sum + (rol.usuariosActivos || 0), 0);
+  const totalUsuariosInactivos = roles.reduce((sum, rol) => sum + (rol.usuariosInactivos || 0), 0);
+  const permisosUnicos = new Set();
+  roles.forEach((rol) => {
+    if (rol.permisos) {
+      rol.permisos.forEach((permiso) => {
+        const nombre = permiso && permiso.nombre ? permiso.nombre : permiso;
+        if (nombre) {
+          permisosUnicos.add(nombre.toUpperCase());
+        }
+      });
+    }
+  });
+
+  const totalPermisos = permisosUnicos.size;
+
+  const totalRolesEl = document.getElementById('kpiTotalRoles');
+  const usuariosActivosEl = document.getElementById('kpiUsuariosActivos');
+  const usuariosInactivosEl = document.getElementById('kpiUsuariosInactivos');
+  const permisosUnicosEl = document.getElementById('kpiPermisosUnicos');
+
+  if (totalRolesEl) totalRolesEl.textContent = totalRoles;
+  if (usuariosActivosEl) usuariosActivosEl.textContent = totalUsuariosActivos;
+  if (usuariosInactivosEl) usuariosInactivosEl.textContent = totalUsuariosInactivos;
+  if (permisosUnicosEl) permisosUnicosEl.textContent = totalPermisos;
 }

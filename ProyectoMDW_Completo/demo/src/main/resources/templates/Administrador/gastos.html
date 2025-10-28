@@ -6,66 +6,159 @@
     <title>Gestión EstilosPE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!--Fuente Google-->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <!--Estilo CSS-->
     <link rel="stylesheet" href="../css/tarjetas.css">
     <link rel="stylesheet" href="../css/sidebar.css">
-    <!-- Iconos de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
 <body>
     <div class="layout">
-        <!-- Sidebar a la izquierda -->
-        <!-- Toggle (solo mobile) -->
-        <label for="nav-toggle" class="d-none">Selecciona una opcion</label>
+        <label for="nav-toggle" class="d-none">Selecciona una opción</label>
         <input type="checkbox" id="nav-toggle" class="d-none">
         <label for="nav-toggle" id="overlay"></label>
-        <!-- Barra superior en mobile con botón hamburguesa -->
+
         <header class="d-md-none position-sticky top-0 z-3 bg-dark text-white">
             <label for="nav-toggle" class="btn btn-link text-white m-2 p-0">
                 <i class="bi bi-list" style="font-size: 1.75rem;"></i>
             </label>
         </header>
 
-        <!-- Tu sidebar (SIN JS) -->
         <div th:replace="fragments/Administrador/sidebarAdministrador"></div>
 
-        <!-- Columna derecha -->
         <div class="main">
-            <!--Header-->
             <div th:replace="fragments/header"></div>
 
-            <!-- Contenido debajo -->
             <main class="app-content">
                 <div id="page-content-wrapper" class="p-4 flex-grow-1">
-                    <h1 class="mb-4">Módulo de Gastos Generales</h1>
-                    <p>Aquí puedes registrar y dar seguimiento a los gastos de la tienda.</p>
+                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                        <h1 class="m-0 flex-grow-1">Gastos Generales</h1>
 
-                    <div class="d-flex gap-2 mb-3">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#gastoModal" id="btnNuevoGasto">
-                            <i class="bi bi-plus-circle me-2"></i>Registrar Nuevo Gasto
+                        <div class="input-group" style="max-width: 320px">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="buscarGasto" placeholder="Buscar descripción o referencia…" />
+                        </div>
+
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Filtros
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 280px">
+                                <div class="mb-2">
+                                    <label class="small text-muted mb-1" for="filtroEstadoGasto">Estado</label>
+                                    <select id="filtroEstadoGasto" class="form-select form-select-sm">
+                                        <option value="">Todos</option>
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="Completado">Completado</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="small text-muted mb-1" for="filtroTipoGasto">Tipo</label>
+                                    <select id="filtroTipoGasto" class="form-select form-select-sm">
+                                        <option value="">Todos los tipos</option>
+                                        <option value="Personal">Personal</option>
+                                        <option value="Alquiler e Infraestructura">Alquiler e Infraestructura</option>
+                                        <option value="Servicios">Servicios</option>
+                                        <option value="Suministros">Suministros</option>
+                                        <option value="Transporte y Logística">Transporte y Logística</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted mb-1">Rango de fechas</label>
+                                    <div class="d-flex gap-2">
+                                        <input type="date" id="filtroFechaInicio" class="form-control form-control-sm" />
+                                        <input type="date" id="filtroFechaFin" class="form-control form-control-sm" />
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary w-100" id="limpiarFiltrosGastos">Limpiar filtros</button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-success" id="btnReporteGastos">
+                            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Reporte mensual
+                        </button>
+
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#gastoModal" id="btnNuevoGasto">
+                            <i class="bi bi-plus-circle me-2"></i>Registrar nuevo gasto
                         </button>
                     </div>
 
-                    <div class="card shadow-sm">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mb-3">
+                        <div class="col">
+                            <div class="kpi kpi-xs kpi-purple">
+                                <div class="kpi-icon"><i class="bi bi-person-badge"></i></div>
+                                <div class="kpi-body">
+                                    <div class="kpi-title">Gasto en Personal</div>
+                                    <div class="kpi-value fs-5 fw-semibold" id="gastoPersonal">S/ 0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi kpi-xs kpi-blue">
+                                <div class="kpi-icon"><i class="bi bi-buildings"></i></div>
+                                <div class="kpi-body">
+                                    <div class="kpi-title">Alquiler e Infraestructura</div>
+                                    <div class="kpi-value fs-5 fw-semibold" id="gastoAlquilerInfraestructura">S/ 0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi kpi-xs kpi-green">
+                                <div class="kpi-icon"><i class="bi bi-lightning-charge"></i></div>
+                                <div class="kpi-body">
+                                    <div class="kpi-title">Servicios</div>
+                                    <div class="kpi-value fs-5 fw-semibold" id="gastoServicios">S/ 0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi kpi-xs kpi-gray">
+                                <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
+                                <div class="kpi-body">
+                                    <div class="kpi-title">Suministros</div>
+                                    <div class="kpi-value fs-5 fw-semibold" id="gastoSuministros">S/ 0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi kpi-xs kpi-orange">
+                                <div class="kpi-icon"><i class="bi bi-truck"></i></div>
+                                <div class="kpi-body">
+                                    <div class="kpi-title">Transporte y Logística</div>
+                                    <div class="kpi-value fs-5 fw-semibold" id="gastoTransporte">S/ 0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi kpi-xs kpi-red">
+                                <div class="kpi-icon"><i class="bi bi-three-dots"></i></div>
+                                <div class="kpi-body">
+                                    <div class="kpi-title">Otros Gastos</div>
+                                    <div class="kpi-value fs-5 fw-semibold" id="gastoOtros">S/ 0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-soft">
                         <div class="card-body">
-                            <h5 class="card-title">Listado de Gastos</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">Listado de gastos</h5>
+                                <small class="text-muted" id="resumenGastos">Sin registros para mostrar</small>
+                            </div>
                             <div class="table-responsive">
-                                <table class="table table-striped table-hover" id="tablaGastos">
-                                    <thead>
+                                <table class="table table-hover align-middle" id="tablaGastos">
+                                    <thead class="table-light">
                                         <tr>
-                                            <th scope="col" style="width: 5%;">ID</th>
-                                            <th scope="col" style="width: 30%;">Descripción</th>
-                                            <th scope="col" style="width: 15%;">Tipo</th>
-                                            <th scope="col" style="width: 15%;">Fecha</th>
-                                            <th scope="col" style="width: 15%;">Monto</th>
-                                            <th scope="col" style="width: 20%;">Estado</th>
-                                            <th scope="col" style="width: 10%;">Acciones</th>
+                                            <th style="width: 80px">ID</th>
+                                            <th>Descripción</th>
+                                            <th style="width: 150px">Tipo</th>
+                                            <th style="width: 120px">Fecha</th>
+                                            <th style="width: 140px" class="text-end">Monto</th>
+                                            <th style="width: 120px">Estado</th>
+                                            <th style="width: 150px">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -75,54 +168,88 @@
                         </div>
                     </div>
                 </div>
+            </main>
         </div>
+    </div>
 
-        <div class="modal fade" id="gastoModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabel">Registrar Nuevo Gasto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="formGasto">
-                            <input type="hidden" id="gastoId">
-                            <div class="mb-3">
-                                <label for="descripcion" class="form-label">Descripción</label>
-                                <input type="text" class="form-control" id="descripcion" required>
+    <div class="modal fade" id="gastoModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content card-soft">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Registrar Nuevo Gasto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formGasto">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="descripcion" class="form-label">Descripción *</label>
+                                <input type="text" id="descripcion" class="form-control" placeholder="Se completará automáticamente" readonly>
                             </div>
-                            <div class="mb-3">
-                                <label for="tipo" class="form-label">Tipo de Gasto</label>
-                                <select class="form-select" id="tipo" required>
-                                    <option value="Alquiler">Alquiler</option>
-                                    <option value="Electricidad">Electricidad</option>
-                                    <option value="Agua">Agua</option>
-                                    <option value="Sueldos">Sueldos</option>
+                            <div class="col-md-6">
+                                <label for="tipo" class="form-label">Tipo de gasto *</label>
+                                <select id="tipo" class="form-select" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Personal">Personal</option>
+                                    <option value="Alquiler e Infraestructura">Alquiler e Infraestructura</option>
                                     <option value="Servicios">Servicios</option>
+                                    <option value="Suministros">Suministros</option>
+                                    <option value="Transporte y Logística">Transporte y Logística</option>
                                     <option value="Otros">Otros</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="fecha" class="form-label">Fecha</label>
-                                <input type="date" class="form-control" id="fecha" required>
+                            <div class="col-md-6 d-none" id="servicioGroup">
+                                <label for="tipoServicio" class="form-label">Tipo de servicio *</label>
+                                <select id="tipoServicio" class="form-select">
+                                    <option value="">Seleccionar servicio</option>
+                                    <option value="luz">Servicio de luz</option>
+                                    <option value="agua">Servicio de agua</option>
+                                    <option value="internet">Servicio de internet</option>
+                                    <option value="telefonia">Servicio de telefonía</option>
+                                    <option value="hosting">Servicios digitales / hosting</option>
+                                    <option value="limpieza">Servicio de limpieza</option>
+                                </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="monto" class="form-label">Monto</label>
-                                <input type="number" class="form-control" id="monto" step="0.01" min="0" required>
+                            <div class="col-md-6 d-none" id="rolPersonalGroup">
+                                <label for="rolPersonal" class="form-label">Rol a pagar *</label>
+                                <select id="rolPersonal" class="form-select">
+                                    <option value="">Seleccionar rol</option>
+                                </select>
                             </div>
-                            <button type="submit" class="btn btn-success" id="GuardarG">Guardar Gasto</button>
-                        </form>
-                    </div>
+                            <div class="col-md-6 d-none" id="usuarioPersonalGroup">
+                                <label for="usuarioPersonal" class="form-label">Usuario destinatario *</label>
+                                <select id="usuarioPersonal" class="form-select">
+                                    <option value="">Seleccionar usuario</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="fecha" class="form-label">Fecha *</label>
+                                <input type="date" id="fecha" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="monto" class="form-label">Monto *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">S/</span>
+                                    <input type="number" id="monto" class="form-control" min="0" step="0.01" placeholder="0.00" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Guardar gasto
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        </main>
     </div>
-    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/gastos.js"></script>
     <script src="../js/auth.js"></script>
-  <script src="../js/logout.js"></script>
+    <script src="../js/logout.js"></script>
+    <script src="../js/gastos.js"></script>
 </body>
 
 </html>

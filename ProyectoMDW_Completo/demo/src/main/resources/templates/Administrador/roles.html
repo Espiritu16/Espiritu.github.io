@@ -44,6 +44,45 @@
             </button>
           </div>
 
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6 col-lg-3">
+              <div class="kpi kpi-blue">
+                <div class="kpi-icon"><i class="bi bi-people"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-title">Total roles</div>
+                  <div class="kpi-value fs-4 fw-semibold" id="kpiTotalRoles">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="kpi kpi-green">
+                <div class="kpi-icon"><i class="bi bi-person-check"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-title">Usuarios activos</div>
+                  <div class="kpi-value fs-4 fw-semibold" id="kpiUsuariosActivos">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="kpi kpi-gray">
+                <div class="kpi-icon"><i class="bi bi-person-dash"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-title">Usuarios inactivos</div>
+                  <div class="kpi-value fs-4 fw-semibold" id="kpiUsuariosInactivos">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="kpi kpi-amber">
+                <div class="kpi-icon"><i class="bi bi-shield-lock"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-title">Permisos únicos</div>
+                  <div class="kpi-value fs-4 fw-semibold" id="kpiPermisosUnicos">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="d-flex justify-content-start mb-3">
             <ul class="nav nav-pills" id="rolesTabs" role="tablist">
               <li class="nav-item" role="presentation">
@@ -70,6 +109,7 @@
                       <th scope="col">Rol</th>
                       <th scope="col">Descripción</th>
                       <th scope="col" class="text-center">Usuarios asignados</th>
+                      <th scope="col" class="col-usuarios">Usuarios</th>
                       <th scope="col">Creado</th>
                       <th scope="col">Actualizado</th>
                       <th scope="col">Actualizado por</th>

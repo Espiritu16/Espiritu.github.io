@@ -53,8 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     sessionStorage.setItem('userRole', rolDisplay);
                     sessionStorage.setItem('userEmail', data.email);
 
-                    // --- ¡CORRECCIÓN DE RUTA! ---
-                    // Añadimos "html/" al inicio para que redirija a la carpeta correcta.
+                    // --- redireccion de roles ---
                     switch (rolBackend) {
                         case "ADMINISTRADOR":
                             window.location.href = "/administrador/";

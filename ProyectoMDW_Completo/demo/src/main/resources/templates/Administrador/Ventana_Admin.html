@@ -51,17 +51,17 @@
               </div>
               <div class="d-none d-md-flex align-items-center gap-4 small text-muted">
                 <div class="d-flex align-items-center gap-2">
-                  <i class="bi bi-truck"></i>
+                  <i class="bi bi-cash-coin"></i>
                   <div>
-                    <strong>S/ 836k</strong>
-                    <div class="small">Compras</div>
+                    <strong id="resumenIngresosDia">S/ 0.00</strong>
+                    <div class="small">Ingresos del día</div>
                   </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                  <i class="bi bi-graph-up-arrow"></i>
+                  <i class="bi bi-exclamation-triangle"></i>
                   <div>
-                    <strong>S/ 689k</strong>
-                    <div class="small">Ventas</div>
+                    <strong id="resumenVentasPendientes">0</strong>
+                    <div class="small">Ventas pendientes</div>
                   </div>
                 </div>
               </div>
@@ -72,55 +72,55 @@
               <div class="kpi kpi-blue">
                 <div class="kpi-icon"><i class="bi bi-bag-check"></i></div>
                 <div class="kpi-body">
-                  <div class="kpi-title">Ventas Totales</div>
-                  <div class="kpi-value">S/ 128,450</div>
+                  <div class="kpi-title">Ventas del día</div>
+                  <div class="kpi-value" id="kpiVentasDia">0</div>
                 </div>
               </div>
             </div>
             <div class="col-12 col-md-6 col-xl-4">
               <div class="kpi kpi-red">
                 <div class="kpi-icon">
-                  <i class="bi bi-clock-history"></i>
+                  <i class="bi bi-cash-stack"></i>
                 </div>
                 <div class="kpi-body">
-                  <div class="kpi-title">Pendientes</div>
-                  <div class="kpi-value">62</div>
+                  <div class="kpi-title">Ingresos del día</div>
+                  <div class="kpi-value" id="kpiIngresosDia">S/ 0.00</div>
                 </div>
               </div>
             </div>
             <div class="col-12 col-md-6 col-xl-4">
               <div class="kpi kpi-violet">
-                <div class="kpi-icon"><i class="bi bi-truck"></i></div>
+                <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
                 <div class="kpi-body">
-                  <div class="kpi-title">Entregadas</div>
-                  <div class="kpi-value">624</div>
+                  <div class="kpi-title">Ventas pendientes</div>
+                  <div class="kpi-value" id="kpiVentasPendientes">0</div>
                 </div>
               </div>
             </div>
             <div class="col-12 col-md-6 col-xl-4">
               <div class="kpi kpi-green">
-                <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
+                <div class="kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
                 <div class="kpi-body">
-                  <div class="kpi-title">Productos</div>
-                  <div class="kpi-value">78</div>
+                  <div class="kpi-title">Ingresos del mes</div>
+                  <div class="kpi-value" id="kpiIngresosMes">S/ 0.00</div>
                 </div>
               </div>
             </div>
             <div class="col-12 col-md-6 col-xl-4">
               <div class="kpi kpi-amber">
-                <div class="kpi-icon"><i class="bi bi-arrow-repeat"></i></div>
+                <div class="kpi-icon"><i class="bi bi-clipboard-data"></i></div>
                 <div class="kpi-body">
-                  <div class="kpi-title">Devueltas</div>
-                  <div class="kpi-value">26</div>
+                  <div class="kpi-title">Ticket promedio (mes)</div>
+                  <div class="kpi-value" id="kpiTicketPromedioMes">S/ 0.00</div>
                 </div>
               </div>
             </div>
             <div class="col-12 col-md-6 col-xl-4">
               <div class="kpi kpi-navy">
-                <div class="kpi-icon"><i class="bi bi-x-octagon"></i></div>
+                <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
                 <div class="kpi-body">
-                  <div class="kpi-title">Canceladas</div>
-                  <div class="kpi-value">47</div>
+                  <div class="kpi-title">Productos vendidos (mes)</div>
+                  <div class="kpi-value" id="kpiProductosVendidosMes">0</div>
                 </div>
               </div>
             </div>
@@ -128,78 +128,26 @@
 
           <!-- Tabla: Ventas recientes -->
           <div class="card card-soft p-3 mb-3">
-            <h5 class="mb-2">Ventas Recientes</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="m-0">Ventas registradas hoy</h5>
+              <small class="text-muted">Actualizado en tiempo real</small>
+            </div>
             <div class="table-responsive">
               <table class="table align-middle mb-0">
                 <thead class="table-sticky">
                   <tr>
-                    <th>ID</th>
-                    <th>Fecha</th>
+                    <th style="width: 110px">ID</th>
+                    <th style="width: 80px">Hora</th>
                     <th>Cliente</th>
-                    <th>Productos</th>
-                    <th>Total</th>
-                    <th>Método</th>
-                    <th>Cajero</th>
-                    <th>Estado</th>
+                    <th>Vendedor</th>
+                    <th style="width: 140px">Método</th>
+                    <th style="width: 140px" class="text-end">Total</th>
+                    <th style="width: 120px">Estado</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="ventasRecientesBody">
                   <tr>
-                    <td>V-10452</td>
-                    <td>28/08/2025</td>
-                    <td>María Torres</td>
-                    <td>Polos (4), Jeans (2)</td>
-                    <td>S/ 1,240</td>
-                    <td>
-                      <span class="badge bg-info-subtle text-info">Tarjeta</span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <img src="../img/usuario.png" class="rounded-circle usuario" width="28" height="28" alt="" />
-                        <span>J. Rojas</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span class="badge bg-success-subtle text-success">Pagada</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>V-10451</td>
-                    <td>27/08/2025</td>
-                    <td>Pedro Salazar</td>
-                    <td>Casaca (1)</td>
-                    <td>S/ 350</td>
-                    <td>
-                      <span class="badge bg-warning-subtle text-warning">Yape</span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <img src="../img/usuario.png" class="rounded-circle usuario" width="28" height="28" alt="" />
-                        <span>A. Vega</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span class="badge bg-success-subtle text-success">Pagada</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>V-10450</td>
-                    <td>27/08/2025</td>
-                    <td>Lucía Núñez</td>
-                    <td>Falda (1), Blusa (1)</td>
-                    <td>S/ 210</td>
-                    <td>
-                      <span class="badge bg-secondary-subtle text-secondary">Efectivo</span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <img src="../img/usuario.png" class="rounded-circle usuario" width="28" height="28" alt="" />
-                        <span>S. Gómez</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span class="badge bg-warning-subtle text-warning">Pendiente</span>
-                    </td>
+                    <td colspan="7" class="text-center text-muted py-3">Sin ventas registradas hoy.</td>
                   </tr>
                 </tbody>
               </table>
@@ -270,8 +218,8 @@
             <div class="col-12 col-lg-6">
               <div class="card card-soft p-3 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h5 class="m-0">Ventas por categoría</h5>
-                  <span class="small text-muted">últimos 30 días</span>
+                  <h5 class="m-0">Top categorías</h5>
+                  <span class="small text-muted">Últimos 30 días</span>
                 </div>
                 <div style="height: 260px">
                   <canvas id="chartCategorias"></canvas>
@@ -284,7 +232,7 @@
               <div class="card card-soft p-3 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <h5 class="m-0">Métodos de pago</h5>
-                  <span class="small text-muted">participación</span>
+                  <span class="small text-muted">Más utilizados</span>
                 </div>
                 <div style="height: 260px">
                   <canvas id="chartPagos"></canvas>
@@ -297,9 +245,11 @@
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/logout.js"></script>
-  
+  <script src="../js/dashboard.js"></script>
+
 </body>
 
 </html>

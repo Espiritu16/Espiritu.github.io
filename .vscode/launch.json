@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ProyectoDeMarcosDeDesarrolloWebApplication",
+            "request": "launch",
+            "mainClass": "com.marcosdeDesarrollo.demo.EstilosPE.ProyectoDeMarcosDeDesarrolloWebApplication",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-ProyectoDeMarcosDeDesarrolloWebApplication<demo>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
