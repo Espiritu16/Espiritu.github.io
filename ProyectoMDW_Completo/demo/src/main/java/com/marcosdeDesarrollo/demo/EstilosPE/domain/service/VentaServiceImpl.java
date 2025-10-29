@@ -9,6 +9,7 @@ import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Clientes;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.DetalleVenta;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Estado;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.MetodoPago;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.EstadoVenta;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Producto;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.TipoComprobante;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Usuario;
@@ -25,15 +26,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -71,15 +78,12 @@ public class VentaServiceImpl implements VentaService {
             LocalDate fechaFin,
             String search) {
 
-        return ventaRepository.findAll().stream()
-                .filter(venta -> filtrarPorEstado(venta, estado))
-                .filter(venta -> filtrarPorMetodoPago(venta, metodoPago))
-                .filter(venta -> filtrarPorTipoComprobante(venta, tipoComprobante))
-                .filter(venta -> filtrarPorFecha(venta, fechaInicio, fechaFin))
-                .filter(venta -> filtrarPorBusqueda(venta, search))
-                .sorted(Comparator.comparing(Venta::getFecha)
-                        .thenComparing(Venta::getIdVenta)
-                        .reversed())
+        Specification<Venta> specification = construirSpecification(estado, metodoPago, tipoComprobante, fechaInicio, fechaFin, search);
+
+        List<Venta> ventas = ventaRepository.findAll(specification,
+                Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("idVenta")));
+
+        return ventas.stream()
                 .map(venta -> mapToResponse(venta, false))
                 .collect(Collectors.toList());
     }
@@ -358,6 +362,70 @@ public class VentaServiceImpl implements VentaService {
         return usuarioRepository.findByEmail(username);
     }
 
+    private Specification<Venta> construirSpecification(String estado,
+            String metodoPago,
+            String tipoComprobante,
+            LocalDate fechaInicio,
+            LocalDate fechaFin,
+            String search) {
+
+        return (root, query, cb) -> {
+            query.distinct(true);
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (StringUtils.hasText(estado)) {
+                predicates.add(cb.equal(root.get("estado"),
+                        parseEnumIgnoreCase(estado, EstadoVenta.class, "El estado indicado no es válido")));
+            }
+
+            if (StringUtils.hasText(metodoPago)) {
+                predicates.add(cb.equal(root.get("metodoPago"),
+                        parseEnumIgnoreCase(metodoPago, MetodoPago.class, "El método de pago indicado no es válido")));
+            }
+
+            if (StringUtils.hasText(tipoComprobante)) {
+                predicates.add(cb.equal(root.get("tipoComprobante"),
+                        parseEnumIgnoreCase(tipoComprobante, TipoComprobante.class, "El tipo de comprobante indicado no es válido")));
+            }
+
+            if (fechaInicio != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("fecha"), fechaInicio));
+            }
+
+            if (fechaFin != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("fecha"), fechaFin));
+            }
+
+            if (StringUtils.hasText(search)) {
+                String pattern = "%" + search.trim().toLowerCase(Locale.ROOT) + "%";
+                Join<Venta, Clientes> clienteJoin = root.join("cliente", JoinType.LEFT);
+                Join<Venta, Usuario> usuarioJoin = root.join("usuario", JoinType.LEFT);
+
+                List<Predicate> searchPredicates = new ArrayList<>();
+                searchPredicates.add(cb.like(cb.lower(root.get("referencia")), pattern));
+                searchPredicates.add(cb.like(cb.lower(root.get("dni")), pattern));
+                searchPredicates.add(cb.like(cb.lower(root.get("ruc")), pattern));
+                searchPredicates.add(cb.like(cb.lower(root.get("metodoPago").as(String.class)), pattern));
+                searchPredicates.add(cb.like(cb.lower(root.get("tipoComprobante").as(String.class)), pattern));
+                searchPredicates.add(cb.like(cb.lower(root.get("estado").as(String.class)), pattern));
+                searchPredicates.add(cb.like(cb.lower(clienteJoin.get("nombre")), pattern));
+                searchPredicates.add(cb.like(cb.lower(clienteJoin.get("apellido")), pattern));
+                searchPredicates.add(cb.like(cb.lower(usuarioJoin.get("nombreUsuario")), pattern));
+
+                predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private <E extends Enum<E>> E parseEnumIgnoreCase(String value, Class<E> enumType, String mensajeError) {
+        return Arrays.stream(enumType.getEnumConstants())
+                .filter(item -> item.name().equalsIgnoreCase(value.trim()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(mensajeError));
+    }
+
     private VentaResponseDto mapToResponse(Venta venta, boolean incluirDetalles) {
         VentaResponseDto dto = new VentaResponseDto();
         dto.setId(venta.getIdVenta());
@@ -437,71 +505,6 @@ public class VentaServiceImpl implements VentaService {
 
     private String generarReferencia() {
         return "VEN-" + LocalDateTime.now().format(REFERENCIA_FORMATTER);
-    }
-
-    private boolean filtrarPorEstado(Venta venta, String estado) {
-        if (estado == null || estado.isBlank()) {
-            return true;
-        }
-        if (venta.getEstado() == null) {
-            return false;
-        }
-        return venta.getEstado().name().equalsIgnoreCase(estado.trim());
-    }
-
-    private boolean filtrarPorMetodoPago(Venta venta, String metodoPago) {
-        if (metodoPago == null || metodoPago.isBlank()) {
-            return true;
-        }
-        if (venta.getMetodoPago() == null) {
-            return false;
-        }
-        return venta.getMetodoPago().name().equalsIgnoreCase(metodoPago.trim());
-    }
-
-    private boolean filtrarPorTipoComprobante(Venta venta, String tipoComprobante) {
-        if (tipoComprobante == null || tipoComprobante.isBlank()) {
-            return true;
-        }
-        if (venta.getTipoComprobante() == null) {
-            return false;
-        }
-        return venta.getTipoComprobante().name().equalsIgnoreCase(tipoComprobante.trim());
-    }
-
-    private boolean filtrarPorFecha(Venta venta, LocalDate inicio, LocalDate fin) {
-        if (inicio == null && fin == null) {
-            return true;
-        }
-        LocalDate fecha = venta.getFecha();
-        if (fecha == null) {
-            return false;
-        }
-        if (inicio != null && fecha.isBefore(inicio)) {
-            return false;
-        }
-        if (fin != null && fecha.isAfter(fin)) {
-            return false;
-        }
-        return true;
-    }
-
-    private boolean filtrarPorBusqueda(Venta venta, String search) {
-        if (search == null || search.isBlank()) {
-            return true;
-        }
-        String termino = search.trim().toLowerCase();
-        return Stream.of(
-                venta.getReferencia(),
-                venta.getMetodoPago() != null ? venta.getMetodoPago().name() : null,
-                venta.getTipoComprobante() != null ? venta.getTipoComprobante().name() : null,
-                venta.getEstado() != null ? venta.getEstado().name() : null,
-                venta.getCliente() != null ? venta.getCliente().getNombre() : null,
-                venta.getCliente() != null ? venta.getCliente().getApellido() : null,
-                venta.getUsuario() != null ? venta.getUsuario().getNombreUsuario() : null)
-                .filter(Objects::nonNull)
-                .map(String::toLowerCase)
-                .anyMatch(valor -> valor.contains(termino));
     }
 
     private void restaurarStock(Venta venta) {

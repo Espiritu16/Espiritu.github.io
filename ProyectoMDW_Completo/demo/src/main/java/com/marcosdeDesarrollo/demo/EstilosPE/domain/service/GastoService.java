@@ -3,15 +3,15 @@ package com.marcosdeDesarrollo.demo.EstilosPE.domain.service;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoRequestDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoResponseDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoUpdateRequestDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.EstadoGasto;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Gastos;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Tipos_Gasto;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Usuario;
+import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoReporteDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.GastosRepository;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.TiposGastoRepository;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.UsuarioRepository;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Gastos;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Tipos_Gasto;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Usuario;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.EstadoGasto;
 import com.marcosdeDesarrollo.demo.EstilosPE.web.security.UserDetailsImpl;
-import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoReporteDto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ import org.springframework.util.StringUtils;
 public class GastoService {
 
     private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final Logger log = LoggerFactory.getLogger(GastoService.class);
 
     private final GastosRepository gastosRepository;
     private final TiposGastoRepository tiposGastoRepository;
@@ -95,9 +98,8 @@ public class GastoService {
         }
 
         try {
-            System.out.println("📌 Creando gasto - tipo: " + request.getTipo()
-                    + ", fecha: " + request.getFecha()
-                    + ", monto: " + request.getMonto());
+            log.debug("Creando gasto - tipo: {}, fecha: {}, monto: {}",
+                    request.getTipo(), request.getFecha(), request.getMonto());
 
             Usuario usuarioActual = obtenerUsuarioActual()
                     .orElseThrow(() -> new IllegalStateException("No se pudo identificar al usuario autenticado"));
@@ -117,7 +119,7 @@ public class GastoService {
             Gastos guardado = gastosRepository.save(gasto);
             return mapToResponse(guardado);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error al crear gasto: " + e.getMessage());
+            log.error("Error al crear gasto", e);
             throw e;
         }
     }

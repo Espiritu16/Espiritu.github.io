@@ -3,16 +3,17 @@ package com.marcosdeDesarrollo.demo.EstilosPE.domain.service;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.CategoriaDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.ProductoRequestDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.ProductoResponseDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Categoria;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Estado;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Producto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.CategoriaRepository;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.ProductoRepository;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Estado;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Producto;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Categoria;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductoService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductoService.class);
     private static final int STOCK_UMBRAL_BAJO = 20;
     private static final BigDecimal PRECIO_ECONOMICO_MAX = BigDecimal.valueOf(50);
     private static final BigDecimal PRECIO_MEDIO_MIN = BigDecimal.valueOf(51);
     private static final BigDecimal PRECIO_MEDIO_MAX = BigDecimal.valueOf(120);
 
-    @Autowired
-    private ProductoRepository productoRepository;
+    private final ProductoRepository productoRepository;
+    private final CategoriaRepository categoriaRepository;
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository) {
+        this.productoRepository = productoRepository;
+        this.categoriaRepository = categoriaRepository;
+    }
 
     @Transactional(readOnly = true)
     public List<ProductoResponseDto> obtenerTodosLosProductos() {
@@ -103,10 +107,10 @@ public class ProductoService {
             return mapToResponse(guardado);
 
         } catch (IllegalArgumentException e) {
-            System.out.println("❌ Error al guardar producto: " + e.getMessage());
+            log.warn("Error al guardar producto: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.out.println("❌ Error inesperado: " + e.getMessage());
+            log.error("Error inesperado al guardar producto", e);
             throw new RuntimeException("Error inesperado al guardar el producto", e);
         }
     }
@@ -143,10 +147,10 @@ public class ProductoService {
             return mapToResponse(actualizado);
 
         } catch (IllegalArgumentException e) {
-            System.out.println("❌ Error al actualizar producto: " + e.getMessage());
+            log.warn("Error al actualizar producto {}: {}", idProducto, e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.out.println("❌ Error inesperado al actualizar: " + e.getMessage());
+            log.error("Error inesperado al actualizar producto {}", idProducto, e);
             throw new RuntimeException("Error inesperado al actualizar el producto", e);
         }
     }

@@ -1,8 +1,7 @@
 package com.marcosdeDesarrollo.demo.EstilosPE.web.controller;
 
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.PermisoResponseDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Permiso;
-import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.PermisoRepository;
+import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.PermisoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Permisos", description = "Endpoints para consulta de permisos del sistema") // 👈 NUEVO
 public class PermisoController {
 
-    private final PermisoRepository permisoRepository;
+    private final PermisoService permisoService;
 
-    public PermisoController(PermisoRepository permisoRepository) {
-        this.permisoRepository = permisoRepository;
+    public PermisoController(PermisoService permisoService) {
+        this.permisoService = permisoService;
     }
 
     @Operation(
@@ -41,17 +39,6 @@ public class PermisoController {
     })
     @GetMapping
     public List<PermisoResponseDto> listar() {
-        return permisoRepository.findAll()
-                .stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-    private PermisoResponseDto mapToDto(Permiso permiso) {
-        PermisoResponseDto dto = new PermisoResponseDto();
-        dto.setId(permiso.getId());
-        dto.setNombre(permiso.getNombre());
-        dto.setDescripcion(permiso.getDescripcion());
-        return dto;
+        return permisoService.listar();
     }
 }

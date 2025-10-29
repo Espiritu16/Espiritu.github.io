@@ -2,19 +2,21 @@ package com.marcosdeDesarrollo.demo.EstilosPE.domain.service;
 
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.CategoriaDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.CategoriaRequestDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Categoria;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.CategoriaRepository;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Categoria;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CategoriaService {
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private final CategoriaRepository categoriaRepository;
+
+    public CategoriaService(CategoriaRepository categoriaRepository) {
+        this.categoriaRepository = categoriaRepository;
+    }
 
     public List<CategoriaDto> obtenerTodasLasCategorias() {
         return categoriaRepository.findAll()

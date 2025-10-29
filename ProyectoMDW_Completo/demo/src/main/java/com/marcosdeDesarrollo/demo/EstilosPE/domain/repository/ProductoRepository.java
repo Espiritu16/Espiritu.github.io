@@ -7,9 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Long>, JpaSpecificationExecutor<Producto> {
-    // Métodos para SKU
-    boolean existsBySku(String sku);
-
     Producto findBySkuIgnoreCase(String sku);
 
     // Método para contar productos activos

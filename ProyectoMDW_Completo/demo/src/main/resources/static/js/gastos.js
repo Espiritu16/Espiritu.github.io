@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnReporteGastos = document.getElementById('btnReporteGastos');
     const modal = new bootstrap.Modal(document.getElementById('gastoModal'));
     const form = document.getElementById('formGasto');
+    const gastoIdInput = document.getElementById('gastoId');
     const modalTitle = document.getElementById('modalLabel');
     const btnNuevoGasto = document.getElementById('btnNuevoGasto');
     const descripcionInput = document.getElementById('descripcion');
@@ -346,8 +347,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="text-end">S/ ${montoFormateado}</td>
                 <td><span class="badge ${estadoClase}">${gasto.estado || 'Pendiente'}</span></td>
                 <td class="col-acciones">
-                    <button class="btn btn-sm btn-info btn-editar" data-gasto-id="${gasto.id}" title="Cambiar Estado"><i class="bi bi-check-circle"></i></button>
-                    <button class="btn btn-sm btn-danger btn-eliminar" data-gasto-id="${gasto.id}" title="Eliminar"><i class="bi bi-trash"></i></button>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-primary btn-editar" data-gasto-id="${gasto.id}" title="Editar"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-info btn-estado" data-gasto-id="${gasto.id}" title="Cambiar estado"><i class="bi bi-arrow-repeat"></i></button>
+                        <button class="btn btn-danger btn-eliminar" data-gasto-id="${gasto.id}" title="Eliminar"><i class="bi bi-trash"></i></button>
+                    </div>
                 </td>
             `;
             tablaBody.appendChild(row);
@@ -402,6 +406,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const gastoId = target.dataset.gastoId;
 
         if (target.classList.contains('btn-editar')) {
+            await editarGasto(gastoId);
+        } else if (target.classList.contains('btn-estado')) {
             await cambiarEstado(gastoId);
         } else if (target.classList.contains('btn-eliminar')) {
             await eliminarGasto(gastoId);
@@ -571,27 +577,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const gastoData = {
+        const esEdicion = Boolean(gastoIdInput && gastoIdInput.value);
+
+        const payloadCrear = {
             descripcion,
             tipo: tipoSeleccionado,
             fecha,
             monto: montoValor,
-            estado: 'Pendiente' // Los nuevos gastos siempre inician como pendientes
+            estado: 'Pendiente'
         };
 
         if (esGastoPersonal) {
-            gastoData.rolDestino = rolSelect.value;
-            gastoData.usuarioDestino = usuarioSelect.value;
+            payloadCrear.rolDestino = rolSelect.value;
+            payloadCrear.usuarioDestino = usuarioSelect.value;
+        }
+
+        if (esServicio && servicioSelect) {
+            payloadCrear.servicio = servicioSelect.value;
+        }
+
+        let url = API_URL;
+        let method = 'POST';
+        let payload = payloadCrear;
+
+        if (esEdicion) {
+            url = `${API_URL}/${gastoIdInput.value}`;
+            method = 'PUT';
+            payload = {
+                descripcion,
+                tipo: tipoSeleccionado,
+                fecha,
+                monto: montoValor
+            };
         }
 
         try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
+            const response = await fetch(url, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(gastoData)
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
@@ -599,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleApiError(response);
                     return;
                 }
-                let mensaje = 'No se pudo registrar el gasto.';
+                let mensaje = esEdicion ? 'No se pudo actualizar el gasto.' : 'No se pudo registrar el gasto.';
                 try {
                     const data = await response.json();
                     if (data && data.error) {
@@ -611,12 +638,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(mensaje);
             }
 
-            alert('Nuevo gasto registrado con éxito.');
+            alert(esEdicion ? 'Gasto actualizado con éxito.' : 'Nuevo gasto registrado con éxito.');
             modal.hide();
+            if (gastoIdInput) {
+                gastoIdInput.value = '';
+            }
             await renderizarTabla();
         } catch (error) {
-            console.error('Error al crear el gasto:', error);
-            alert(error.message || 'No se pudo registrar el gasto.');
+            console.error('Error al registrar o actualizar el gasto:', error);
+            alert(error.message || (esEdicion ? 'No se pudo actualizar el gasto.' : 'No se pudo registrar el gasto.'));
         }
     });
 
@@ -626,6 +656,9 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle.textContent = 'Registrar Nuevo Gasto';
         mostrarCamposPersonal(false);
         mostrarCamposServicio(false);
+        if (gastoIdInput) {
+            gastoIdInput.value = '';
+        }
         if (rolSelect) {
             rolSelect.disabled = rolSelect.options.length <= 1;
         }
@@ -642,6 +675,81 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- SECCIÓN 3: FUNCIONES DE ACCIÓN ---
+
+    async function editarGasto(id) {
+        const token = getToken();
+        if (!token) {
+            alert('Su sesión ha caducado. Inicie sesión nuevamente para editar gastos.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                handleApiError(response);
+                throw new Error('No se pudo cargar la información del gasto seleccionado.');
+            }
+
+            const gasto = await response.json();
+
+            form.reset();
+            if (gastoIdInput) {
+                gastoIdInput.value = gasto.id ?? '';
+            }
+
+            modalTitle.textContent = `Editar Gasto #${gasto.id ?? id}`;
+
+            if (tipoSelect) {
+                tipoSelect.value = gasto.tipo || '';
+            }
+
+            const esPersonal = gasto.tipo === 'Personal';
+            const esServicio = gasto.tipo === 'Servicios';
+
+            if (esPersonal) {
+                await cargarRolesPersonal();
+            }
+
+            mostrarCamposPersonal(esPersonal);
+            mostrarCamposServicio(esServicio);
+
+            if (rolSelect) {
+                rolSelect.disabled = rolSelect.options.length <= 1;
+            }
+            if (usuarioSelect) {
+                usuarioSelect.disabled = esPersonal ? false : true;
+            }
+            if (servicioSelect) {
+                servicioSelect.disabled = !esServicio;
+            }
+
+            if (fechaInput) {
+                fechaInput.value = gasto.fecha || obtenerFechaActualIso();
+            }
+
+            if (montoInput) {
+                const valor = gasto.monto != null ? Number(gasto.monto) : null;
+                montoInput.value = Number.isFinite(valor) ? valor.toFixed(2) : '';
+            }
+
+            if (descripcionInput) {
+                descripcionInput.value = gasto.descripcion || '';
+            }
+
+            actualizarDescripcion();
+            if (descripcionInput && gasto.descripcion) {
+                descripcionInput.value = gasto.descripcion;
+            }
+
+            modal.show();
+        } catch (error) {
+            console.error(`Error al cargar el gasto #${id} para edición:`, error);
+            alert(error.message || 'No se pudo cargar el gasto seleccionado.');
+        }
+    }
 
     async function cambiarEstado(id) {
         const token = getToken();
