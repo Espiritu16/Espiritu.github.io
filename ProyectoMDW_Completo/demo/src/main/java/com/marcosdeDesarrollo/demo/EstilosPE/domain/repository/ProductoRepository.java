@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface ProductoRepository extends JpaRepository<Producto, Long>, JpaSpecificationExecutor<Producto> {
     Producto findBySkuIgnoreCase(String sku);
 
-    // Método para contar productos activos
     long countByEstado(Estado estado);
 
     boolean existsBySkuIgnoreCase(String sku);

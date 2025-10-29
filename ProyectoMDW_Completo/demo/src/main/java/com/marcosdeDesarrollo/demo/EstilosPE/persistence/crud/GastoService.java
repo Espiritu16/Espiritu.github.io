@@ -1,4 +1,4 @@
-package com.marcosdeDesarrollo.demo.EstilosPE.domain.service;
+package com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud;
 
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoRequestDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoResponseDto;

@@ -1,4 +1,4 @@
-package com.marcosdeDesarrollo.demo.EstilosPE.domain.service;
+package com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud;
 
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.VentaDetalleRequestDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.VentaDetalleResponseDto;
@@ -14,6 +14,9 @@ import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Producto;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.TipoComprobante;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Usuario;
 import com.marcosdeDesarrollo.demo.EstilosPE.persistence.entity.Venta;
+import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.DetalleVentaQueryService;
+import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.VentaQueryService;
+import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.VentaService;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.ClientesRepository;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.ProductoRepository;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.UsuarioRepository;

@@ -2,7 +2,7 @@ package com.marcosdeDesarrollo.demo.EstilosPE.web.controller;
 
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.CategoriaDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.CategoriaRequestDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.CategoriaService;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud.CategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

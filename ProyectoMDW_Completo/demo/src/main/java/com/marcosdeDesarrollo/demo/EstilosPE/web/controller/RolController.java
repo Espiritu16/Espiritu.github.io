@@ -2,7 +2,7 @@ package com.marcosdeDesarrollo.demo.EstilosPE.web.controller;
 
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.RolRequestDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.RolResponseDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.RolService;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud.RolService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -3,7 +3,7 @@ package com.marcosdeDesarrollo.demo.EstilosPE.web.controller;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.ActualizarEstadoProductoRequest;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.ProductoRequestDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.ProductoResponseDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.ProductoService;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud.ProductoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

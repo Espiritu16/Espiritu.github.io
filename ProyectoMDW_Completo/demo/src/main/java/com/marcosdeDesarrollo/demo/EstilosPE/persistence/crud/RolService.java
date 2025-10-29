@@ -1,4 +1,4 @@
-package com.marcosdeDesarrollo.demo.EstilosPE.domain.service;
+package com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud;
 
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.PermisoResponseDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.RolRequestDto;
@@ -13,6 +13,7 @@ import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.PermisoRepository
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.AuditoriaRepository;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.RolRepository;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.repository.UsuarioRepository;
+import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.AuditoriaService;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;

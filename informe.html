@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Informe Integral - Ventas y Pagos</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f2f4fb;
+      --panel: #ffffff;
+      --panel-alt: #f9f9ff;
+      --text: #1b1f3b;
+      --muted: #555b81;
+      --accent: #3949ab;
+      --accent-light: #dce1ff;
+      --border: #d9ddf1;
+      --code-bg: #11152b;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, #303f9f, #3949ab, #536dfe);
+      color: #fff;
+      padding: 3rem 1.5rem 2.6rem;
+      text-align: center;
+      box-shadow: 0 24px 55px rgba(57, 73, 171, 0.35);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.6rem;
+      letter-spacing: 0.04em;
+    }
+
+    header p {
+      margin: 0.6rem 0 0;
+      opacity: 0.86;
+    }
+
+    nav {
+      background: var(--panel);
+      margin: -1.5rem auto 2.5rem;
+      max-width: 1140px;
+      padding: 1.2rem 1.8rem;
+      border-radius: 18px;
+      box-shadow: 0 12px 35px rgba(23, 35, 90, 0.12);
+      border: 1px solid var(--border);
+      position: sticky;
+      top: 0.8rem;
+      z-index: 3;
+    }
+
+    nav ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.6rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 0.95rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--accent);
+      border-bottom: 2px solid transparent;
+      padding-bottom: 0.15rem;
+    }
+
+    nav a:hover {
+      border-color: var(--accent);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      background: var(--panel);
+      border-radius: 24px;
+      padding: 2.2rem 2.4rem;
+      margin-bottom: 2.4rem;
+      box-shadow: 0 22px 50px rgba(22, 33, 75, 0.12);
+      border: 1px solid var(--border);
+    }
+
+    section:nth-of-type(even) {
+      background: var(--panel-alt);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.8rem;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+
+    h3 {
+      margin-top: 2rem;
+      font-size: 1.25rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    p {
+      margin: 0.65rem 0;
+    }
+
+    ul,
+    ol {
+      margin: 0.75rem 0;
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin: 0.35rem 0;
+    }
+
+    code {
+      background: rgba(63, 81, 181, 0.12);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: #f1f4ff;
+      padding: 1.1rem 1.2rem;
+      border-radius: 14px;
+      overflow-x: auto;
+      font-size: 0.94rem;
+      margin: 1.2rem 0;
+      line-height: 1.5;
+    }
+
+    pre strong {
+      color: #82b1ff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      border-radius: 18px;
+      overflow: hidden;
+      font-size: 0.96rem;
+    }
+
+    th,
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.22rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .badge-file {
+      background: rgba(76, 175, 80, 0.15);
+      color: #1b5e20;
+    }
+
+    .badge-api {
+      background: rgba(33, 150, 243, 0.18);
+      color: #0d47a1;
+    }
+
+    .badge-js {
+      background: rgba(255, 193, 7, 0.2);
+      color: #b36b00;
+    }
+
+    .callout {
+      background: linear-gradient(120deg, rgba(63, 81, 181, 0.12), rgba(0, 151, 167, 0.08));
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.4rem;
+      border-radius: 12px;
+      margin: 1rem 0 1.4rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 2.5rem 1rem 3.2rem;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 768px) {
+      nav ul {
+        gap: 0.5rem 1rem;
+        font-size: 0.88rem;
+      }
+
+      section {
+        padding: 1.8rem 1.6rem;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Informe Detallado del Módulo de Ventas y Pagos</h1>
+    <p>ProyectoMDW &middot; Espiritu.github.io &middot; Octubre 2025</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#arquitectura">Arquitectura General</a></li>
+      <li><a href="#modelo-dominio">Modelo de Dominio</a></li>
+      <li><a href="#componentes">Componentes por Capa</a></li>
+      <li><a href="#servicio-ventas">Servicio de Ventas</a></li>
+      <li><a href="#endpoints-ventas">API de Ventas</a></li>
+      <li><a href="#frontend-ventas">Front-end Ventas</a></li>
+      <li><a href="#stock">Descuento de Stock</a></li>
+      <li><a href="#kpis">Filtros, KPI y Reportes</a></li>
+      <li><a href="#gastos">Gastos y Pagos Operativos</a></li>
+      <li><a href="#justificacion">Decisiones de Diseño</a></li>
+      <li><a href="#recomendaciones">Recomendaciones</a></li>
+    </ul>
+    <div style="margin-top: 1rem; text-align: right;">
+      <button id="btnDescargarPdf"
+        style="background: var(--accent); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 999px; font-size: 0.9rem; cursor: pointer; box-shadow: 0 8px 20px rgba(57, 73, 171, 0.35);">Descargar
+        PDF</button>
+    </div>
+  </nav>
+
+  <main>
+    <section id="arquitectura">
+      <h2>Arquitectura General</h2>
+      <p>
+        El módulo de ventas y pagos se construye sobre Spring Boot siguiendo una arquitectura por capas:
+        controladores REST, servicios de dominio, repositorios JPA y servicios auxiliares de consulta.
+        El front-end está compuesto por scripts modulares en JavaScript que interactúan con la API mediante
+        <code>fetch</code>, actualizando la interfaz basada en Bootstrap.
+      </p>
+      <ul>
+        <li><strong>Backend:</strong> Java 17, Spring Boot, Spring Data JPA, Hibernate, transacciones declarativas
+          (<code>@Transactional</code>).</li>
+        <li><strong>Front-end:</strong> Scripts ES6 (<code>ventas.js</code>, <code>gastos.js</code>) + HTML/Bootstrap en
+          los templates de Administrador, Contador y Vendedor.</li>
+        <li><strong>Autenticación:</strong> JWT almacenado en <code>sessionStorage</code>, utilizado en peticiones
+          protegidas (<code>Authorization: Bearer &hellip;</code>).</li>
+      </ul>
+      <div class="callout">
+        <strong>Ruta de documentación en vivo:</strong> <a href="http://localhost:8080/swagger-ui/index.html"
+          target="_blank">Swagger UI</a>.
+      </div>
+    </section>
+
+    <section id="modelo-dominio">
+      <h2>Modelo de Dominio y Relaciones</h2>
+      <h3>Entidad <code>Venta</code></h3>
+      <ul>
+        <li><em>Cabecera</em> de la transacción. Participa con <code>Usuario</code> (vendedor) y <code>Clientes</code>
+          (comprador).</li>
+        <li>Campos claves: <code>metodoPago</code> (<span class="badge badge-api">MetodoPago enum</span>),
+          <code>estado</code> (<span class="badge badge-api">EstadoVenta</span>), <code>tipoComprobante</code>,
+          <code>total</code>, <code>referencia</code>, <code>dni</code>, <code>ruc</code>.</li>
+      </ul>
+
+      <h3>Entidad <code>DetalleVenta</code></h3>
+      <ul>
+        <li>Registra cada producto vendido: cantidad, precio unitario y subtotal.</li>
+        <li>Relaciona una venta con un producto (<code>@ManyToOne</code> hacia <code>Producto</code>).</li>
+      </ul>
+
+      <h3>Producto y Ajuste de Stock</h3>
+      <ul>
+        <li><strong><code>Producto</code></strong> mantiene <code>stockActual</code>, <code>precio</code> y
+          <code>categoria</code>.</li>
+        <li>El stock se incrementa o disminuye desde el servicio utilizando repositorio JPA.</li>
+      </ul>
+
+      <h3>Cliente y Usuario</h3>
+      <ul>
+        <li><code>Clientes</code> almacena datos normalizados (nombre, DNI, RUC, estado).</li>
+        <li><code>Usuario</code> representa el vendedor autenticado; se obtiene a través del contexto de Spring
+          Security.</li>
+      </ul>
+    </section>
+
+    <section id="componentes">
+      <h2>Componentes por Capa</h2>
+      <p>
+        El proyecto adopta la división clásica <strong>Controller → Service → Repository → Entity</strong>, reforzada
+        con objetos de transferencia de datos (DTO).
+        A continuación se muestra cómo se conectan las piezas y qué responsabilidad tiene cada una.
+      </p>
+
+      <h3>Entidades (JPA)</h3>
+      <p>
+        Representan las tablas de la base de datos. Cada campo se mapea mediante anotaciones JPA. El siguiente fragmento
+        de <span class="badge badge-file">Venta.java</span>
+        ilustra la cabecera de la venta, sus relaciones y valores por defecto asignados en el ciclo de vida.
+      </p>
+      <pre><code>@Entity
+@Table(name = "ventas")
+public class Venta {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_venta")
+    private Integer idVenta;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cliente")
+    private Clientes cliente;
+
+    @Column(name = "fecha", nullable = false)
+    private LocalDate fecha;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pago", nullable = false, length = 15)
+    private MetodoPago metodoPago;
+
+    @PrePersist
+    protected void onCreate() {
+        if (fecha == null) fecha = LocalDate.now();
+        if (estado == null) estado = EstadoVenta.Pagada;
+        if (total == null) total = BigDecimal.ZERO;
+    }
+}</code></pre>
+
+      <h3>DTO (Data Transfer Objects)</h3>
+      <p>
+        Los DTO reducen el acoplamiento entre capas y exponen únicamente los campos necesarios. Por ejemplo,
+        <span class="badge badge-file">VentaRequestDto.java</span> encapsula lo que espera el endpoint
+        <code>POST /api/ventas</code>:
+      </p>
+      <pre><code>public class VentaRequestDto {
+    private Integer clienteId;
+    private String clienteNombre;
+    private MetodoPago metodoPago;
+    private TipoComprobante tipoComprobante;
+    private String referencia;
+    private String dni;
+    private String ruc;
+    private List&lt;VentaDetalleRequestDto&gt; detalles;
+}</code></pre>
+      <p>
+        El servicio recibe esta estructura, valida los campos y la traduce a entidades (<code>Venta</code> y
+        <code>DetalleVenta</code>).
+      </p>
+
+      <h3>Repositorio</h3>
+      <p>
+        El repositorio define operaciones de datos especializadas. El uso de <code>JpaRepository</code> evita escribir
+        boilerplate y los métodos declarados por nombre generan las consultas automáticamente.
+      </p>
+      <pre><code>public interface VentaRepository extends JpaRepository&lt;Venta, Integer&gt;, JpaSpecificationExecutor&lt;Venta&gt; {
+    long countByFecha(LocalDate fecha);
+    long countByEstado(EstadoVenta estado);
+    List&lt;Venta&gt; findByFechaOrderByFechaCreacionDesc(LocalDate fecha);
+}</code></pre>
+      <p>
+        <strong>¿Cómo se utiliza?</strong> El servicio inyecta <code>VentaRepository</code> y llama a estos métodos para
+        KPI o listados. Spring genera el SQL correspondiente según el nombre del método.
+      </p>
+      <ul>
+        <li><code>countByFecha</code> alimenta el KPI de “ventas del día”.</li>
+        <li><code>countByEstado</code> se usa en el <em>dashboard</em> para distinguir ventas pendientes o completadas.
+        </li>
+        <li><code>findByFechaOrderByFechaCreacionDesc</code> provee las últimas ventas del día en tarjetas de resumen.
+        </li>
+      </ul>
+
+      <h3>Servicios</h3>
+      <p>
+        Las clases de servicio contienen la lógica de negocio. Tras la reorganización solicitada, los servicios CRUD
+        viven en
+        <code>com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud</code>. El fragmento siguiente muestra cómo <span
+          class="badge badge-file">VentaServiceImpl</span>
+        valida documentos y descuenta stock antes de almacenar la venta:
+      </p>
+      <pre><code>public VentaResponseDto crearVenta(VentaRequestDto request) {
+    validarSolicitud(request);
+    TipoComprobante tipo = Optional.ofNullable(request.getTipoComprobante())
+            .orElse(TipoComprobante.BoletaSimple);
+    String dni = normalizarCadena(request.getDni());
+    String ruc = normalizarCadena(request.getRuc());
+    validarDocumentos(tipo, dni, ruc);
+
+    Usuario usuario = obtenerUsuarioActual()
+            .orElseThrow(() -&gt; new IllegalStateException("Usuario no resuelto"));
+    Clientes cliente = resolverCliente(request, dni, ruc);
+
+    Venta venta = new Venta();
+    venta.setUsuario(usuario);
+    venta.setCliente(cliente);
+    venta.setMetodoPago(request.getMetodoPago() != null ? request.getMetodoPago() : MetodoPago.Efectivo);
+    venta.setTipoComprobante(tipo);
+
+    List&lt;AjusteStock&gt; ajustes = new ArrayList<>();
+    BigDecimal total = BigDecimal.ZERO;
+    for (VentaDetalleRequestDto detalleDto : request.getDetalles()) {
+        DetalleVenta detalle = construirDetalle(venta, detalleDto, ajustes);
+        venta.getDetalles().add(detalle);
+        total = total.add(detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad())));
+    }
+    venta.setTotal(total);
+    Venta guardada = ventaRepository.save(venta);
+    return mapToResponse(guardada, true);
+}</code></pre>
+      <p>
+        Dentro de <code>construirDetalle</code> se invoca a <code>aplicarAjusteStock</code>, que es donde se descuenta
+        realmente el inventario.</p>
+
+      <h3>Controladores</h3>
+      <p>
+        Los controladores exponen los endpoints y delegan en los servicios. Aquí <span
+          class="badge badge-file">VentaController</span> recibe la petición, maneja errores y devuelve la respuesta
+        adecuada:
+      </p>
+      <pre><code>@PostMapping
+public ResponseEntity&lt;?&gt; crearVenta(@RequestBody VentaRequestDto request) {
+    try {
+        VentaResponseDto venta = ventaService.crearVenta(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(venta);
+    } catch (IllegalArgumentException | IllegalStateException ex) {
+        return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+    }
+}</code></pre>
+      <p>
+        Los controladores no acceden directamente al repositorio ni contienen lógica de negocio; su responsabilidad es
+        recibir la petición HTTP, validar parámetros básicos y delegar en el servicio.</p>
+
+      <h3>Servicios de Consulta (Query Services)</h3>
+      <p>
+        Para mantener el servicio principal enfocado en reglas de negocio, las consultas agregadas se concentran en
+        clases como <span class="badge badge-file">VentaQueryService</span>. Estas clases encapsulan JPQL/SQL con
+        <code>EntityManager</code> y devuelven resultados listos para que el servicio los utilice.
+      </p>
+      <pre><code>public BigDecimal calcularIngresosPorRango(LocalDate inicio, LocalDate fin) {
+    String jpql = "SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin";
+    return Optional.ofNullable(
+            entityManager.createQuery(jpql, BigDecimal.class)
+                    .setParameter("inicio", inicio)
+                    .setParameter("fin", fin)
+                    .getSingleResult())
+        .orElse(BigDecimal.ZERO);
+}</code></pre>
+      <p>
+        El servicio de ventas sólo invoca <code>ventaQueryService.calcularIngresosPorRango</code> cuando necesita armar
+        KPI, sin replicar la consulta en múltiples lugares.</p>
+    </section>
+
+    <section id="servicio-ventas">
+      <h2>Servicio de Ventas (Back-end)</h2>
+      <h3>Clases Principales</h3>
+      <ul>
+        <li><span class="badge badge-file">VentaServiceImpl.java</span>: lógica de negocio central (creación,
+          actualización, borrado, listado, KPI).</li>
+        <li><span class="badge badge-file">VentaRepository.java</span>: CRUD + <code>JpaSpecificationExecutor</code>
+          para filtros dinámicos.</li>
+        <li><span class="badge badge-file">VentaQueryService.java</span> y <span
+            class="badge badge-file">DetalleVentaQueryService.java</span>: consultas agregadas (ingresos por rango,
+          ticket promedio, sumatoria de productos, etc.).</li>
+      </ul>
+
+      <h3>Flujo de Creación de Venta</h3>
+      <ol>
+        <li>El controlador recibe <code>VentaRequestDto</code> mediante <code>POST /api/ventas</code>.</li>
+        <li>El servicio valida método de pago y tipo de comprobante, normaliza cadenas y documentos (DNI/RUC) según
+          reglas:</li>
+      </ol>
+      <pre><code><strong>switch (tipoComprobante) {</strong>
+  case Boleta -&gt; venta.setDni(dniNormalizado);
+  case Factura -&gt; venta.setRuc(rucNormalizado);
+  case BoletaSimple -&gt; { venta.setDni(null); venta.setRuc(null); }
+}</code></pre>
+      <ol start="3">
+        <li>Obtiene el usuario autenticado (<code>SecurityContextHolder</code>) y resuelve el cliente (existente o crea
+          uno nuevo).</li>
+        <li>Válida stock y construye cada detalle (<code>construirDetalle</code>), aplicando descuentos de inventario.
+        </li>
+        <li>Calcula total, genera referencia si está vacía, persiste la venta y devuelve <code>VentaResponseDto</code>.
+        </li>
+      </ol>
+
+      <h3>Listar Ventas con Filtros</h3>
+      <p>
+        <code>listarVentas</code> crea un <code>Specification&lt;Venta&gt;</code> para filtrar por estado, método de
+        pago, tipo de comprobante, rango de fechas y texto libre:
+      </p>
+      <pre><code>String pattern = "%" + search.trim().toLowerCase(Locale.ROOT) + "%";
+Join&lt;Venta, Clientes&gt; clienteJoin = root.join("cliente", JoinType.LEFT);
+predicates.add(
+  cb.or(
+    cb.like(cb.lower(root.get("referencia")), pattern),
+    cb.like(cb.lower(clienteJoin.get("nombre")), pattern),
+    cb.like(cb.lower(clienteJoin.get("apellido")), pattern),
+    cb.like(cb.lower(usuarioJoin.get("nombreUsuario")), pattern)
+  )
+);</code></pre>
+      <p>
+        El repositorio aplica el <code>Specification</code> con orden descendente por fecha e ID:
+      </p>
+      <pre><code>List<Venta> ventas = ventaRepository.findAll(specification,
+  Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("idVenta")))</code></pre>
+    </section>
+
+    <section id="endpoints-ventas">
+      <h2>API REST de Ventas</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Método</th>
+            <th>Descripción</th>
+            <th>Implementación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/api/ventas</code></td>
+            <td>GET</td>
+            <td>Listado con filtros (estado, método, tipo, fechas, search).</td>
+            <td>VentaController#listarVentas &rarr; VentaServiceImpl#listarVentas</td>
+          </tr>
+          <tr>
+            <td><code>/api/ventas/{id}</code></td>
+            <td>GET</td>
+            <td>Obtiene detalle con sus líneas.</td>
+            <td>VentaController#obtenerVenta &rarr; VentaQueryService#obtenerVentaConDetalles</td>
+          </tr>
+          <tr>
+            <td><code>/api/ventas</code></td>
+            <td>POST</td>
+            <td>Crear nueva venta y descontar inventario.</td>
+            <td>VentaController#crearVenta &rarr; VentaServiceImpl#crearVenta</td>
+          </tr>
+          <tr>
+            <td><code>/api/ventas/{id}</code></td>
+            <td>PUT</td>
+            <td>Actualizar venta (restaura stock anterior y aplica el nuevo).</td>
+            <td>VentaController#actualizarVenta &rarr; VentaServiceImpl#actualizarVenta</td>
+          </tr>
+          <tr>
+            <td><code>/api/ventas/{id}</code></td>
+            <td>DELETE</td>
+            <td>Elimina venta y repone inventario.</td>
+            <td>VentaController#eliminarVenta &rarr; VentaServiceImpl#eliminarVenta</td>
+          </tr>
+          <tr>
+            <td><code>/api/ventas/kpis</code></td>
+            <td>GET</td>
+            <td>Indicadores (ventas del día, ingresos del mes, ticket promedio, productos vendidos).</td>
+            <td>VentaController#obtenerKpis &rarr; VentaQueryService + DetalleVentaQueryService</td>
+          </tr>
+          <tr>
+            <td><code>/api/ventas/reporte-mensual</code></td>
+            <td>GET</td>
+            <td>Ventas del mes actual (Dashboard mensual).</td>
+            <td>VentaController#obtenerReporteMensual</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        La información de pago (método, comprobante, referencia) se almacena directamente en la entidad
+        <code>Venta</code>,
+        lo que evita un microservicio adicional para cobros. La justificación principal es que la plataforma opera con
+        una
+        sola pasarela de pago manual (Efectivo, Tarjeta, Transferencia, Digital) y la consistencia se garantiza mediante
+        validaciones de negocio en el servicio.
+      </p>
+    </section>
+
+    <section id="frontend-ventas">
+      <h2>Front-end de Ventas (<code>ventas.js</code>)</h2>
+      <h3>Inicialización y Filtros</h3>
+      <pre><code>const API_VENTAS = `${API_BASE}/ventas`;
+const construirUrlVentas = () =&gt; {
+  const filtros = obtenerFiltros();
+  const url = new URL(API_VENTAS, window.location.origin);
+
+  if (filtros.estado) url.searchParams.append('estado', filtros.estado);
+  if (filtros.metodoPago) url.searchParams.append('metodoPago', filtros.metodoPago);
+  if (filtros.fechaInicio) url.searchParams.append('fechaInicio', filtros.fechaInicio);
+  if (filtros.fechaFin) url.searchParams.append('fechaFin', filtros.fechaFin);
+  if (filtros.search) url.searchParams.append('search', filtros.search);
+  return url;
+};</code></pre>
+      <p>
+        Cada filtro (selects, inputs de fecha y búsqueda) dispara <code>cargarVentas()</code>, que ejecuta:
+      </p>
+      <pre><code>const response = await fetch(construirUrlVentas(), { headers: headers() });
+const ventas = await response.json();
+renderTablaVentas(ventas);</code></pre>
+
+      <h3>Creación / Edición</h3>
+      <p>
+        El formulario utiliza el mismo manejador para registrar y actualizar. Se determina el método según el valor
+        oculto <code>#ventaId</code>:
+      </p>
+      <pre><code>const ventaId = elements.ventaIdInput.value;
+const url = ventaId ? `${API_VENTAS}/${ventaId}` : API_VENTAS;
+const method = ventaId ? 'PUT' : 'POST';
+
+const response = await fetch(url, {
+  method,
+  headers: headers(),
+  body: JSON.stringify(payload)
+});</code></pre>
+      <p>
+        El <code>payload</code> contiene:
+      </p>
+      <pre><code>{
+  clienteId,
+  clienteNombre,
+  tipoComprobante,
+  metodoPago,
+  referencia,
+  dni,
+  ruc,
+  detalles: [{
+    productoId,
+    cantidad,
+    precioUnitario
+  }, ...]
+}</code></pre>
+
+      <h3>Eliminación</h3>
+      <pre><code>const response = await fetch(`${API_VENTAS}/${id}`, {
+  method: 'DELETE',
+  headers: headers()
+});</code></pre>
+      <p>
+        Tras eliminar, se actualiza la tabla y los KPI. Se informa al usuario con mensajes claros.
+      </p>
+
+      <h3>KPI y Reporte Mensual</h3>
+      <ul>
+        <li><code>cargarKpis()</code> consume <code>GET /api/ventas/kpis</code> y renderiza tarjetas de resumen.</li>
+        <li><code>obtenerReporteMensual()</code> llama a <code>GET /api/ventas/reporte-mensual</code> para graficar
+          ventas del mes.</li>
+      </ul>
+    </section>
+
+    <section id="stock">
+      <h2>Descuento y Restauración de Stock</h2>
+      <h3>Construcción del detalle</h3>
+      <pre><code>private DetalleVenta construirDetalle(Venta venta,
+        VentaDetalleRequestDto dto,
+        List<AjusteStock> ajustes) {
+
+  Producto producto = productoRepository.findById(dto.getProductoId())
+      .orElseThrow(() -&gt; new IllegalArgumentException("Producto no encontrado"));
+
+  if (dto.getCantidad() == null || dto.getCantidad() &lt;= 0) {
+    throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
+  }
+
+  BigDecimal precioUnitario = dto.getPrecioUnitario() != null
+      ? dto.getPrecioUnitario()
+      : producto.getPrecio();
+
+  aplicarAjusteStock(producto, -dto.getCantidad(), ajustes);
+  ...
+}</code></pre>
+
+      <h3>Método <code>aplicarAjusteStock</code></h3>
+      <pre><code>private void aplicarAjusteStock(Producto producto, int delta,
+        List<AjusteStock> ajustesAplicados) {
+  int stockActual = producto.getStockActual() != null ? producto.getStockActual() : 0;
+  int nuevoStock = stockActual + delta;
+  if (nuevoStock &lt; 0) {
+    throw new IllegalArgumentException("Stock insuficiente para el producto " + producto.getNombreProducto());
+  }
+  producto.setStockActual(nuevoStock);
+  productoRepository.save(producto);
+  if (ajustesAplicados != null) {
+    ajustesAplicados.add(new AjusteStock(producto, delta));
+  }
+}</code></pre>
+
+      <h3>Rollback ante errores</h3>
+      <p>
+        Si algún detalle falla, <code>revertirAjustes</code> recorre los ajustes en orden inverso y restaura los
+        valores:
+      </p>
+      <pre><code>private void revertirAjustes(List<AjusteStock> ajustes) {
+  for (int i = ajustes.size() - 1; i &gt;= 0; i--) {
+    AjusteStock ajuste = ajustes.get(i);
+    aplicarAjusteStock(ajuste.producto, -ajuste.delta, null);
+  }
+}</code></pre>
+
+      <h3>Actualización de venta existente</h3>
+      <ul>
+        <li>Se obtiene la venta, se cargan los detalles y se invoca <code>restaurarStock</code> para devolver los
+          productos al estado previo.</li>
+        <li>El listado de detalles se limpia, se reconstruye con la nueva información y se recalculan inventario y
+          total.</li>
+      </ul>
+    </section>
+
+    <section id="kpis">
+      <h2>Filtros, KPIs y Reportes</h2>
+      <h3>Filtros de ventas</h3>
+      <ul>
+        <li><strong>Estado, Método, Tipo:</strong> selects que agregan parámetros a la URL.</li>
+        <li><strong>Rango de fechas:</strong> se envían como <code>fechaInicio</code> y <code>fechaFin</code>,
+          convertidos a <code>LocalDate</code> en el backend.</li>
+        <li><strong>Search:</strong> busca en referencia, cliente, usuario, método o tipo.</li>
+      </ul>
+
+      <h3>KPI de Ventas</h3>
+      <p>
+        <code>VentaQueryService</code> consulta la base para obtener:
+      </p>
+      <ul>
+        <li>Total de ventas del día (<code>countByFecha</code> en <code>VentaRepository</code>).</li>
+        <li>Ingresos del mes (<code>calcularIngresosPorRango</code>).</li>
+        <li>Venta promedio (<code>calcularTicketPromedio</code>).</li>
+        <li>Productos vendidos (<code>DetalleVentaQueryService#sumCantidadByFechaBetween</code>).</li>
+      </ul>
+
+      <h3>Reporte mensual y CSV</h3>
+      <ul>
+        <li><strong>Ventas:</strong> <code>obtenerVentasDelMes()</code> reutiliza <code>listarVentas</code> con fechas
+          del mes actual.</li>
+        <li><strong>Gastos:</strong> <code>gastos.js</code> expone un botón “Reporte” que genera CSV con
+          <code>generarCsv(datos)</code>.</li>
+      </ul>
+      <pre><code>const contenido = [encabezados.join(','), ...filas.map(fila =&gt; fila.join(','))].join('\n');
+return new Blob([contenido], { type: 'text/csv;charset=utf-8;' });</code></pre>
+    </section>
+
+    <section id="gastos">
+      <h2>Pagos Operativos y Gastos</h2>
+      <p>
+        El módulo de gastos permite registrar pagos internos (personal, servicios, suministros, etc.) que complementan
+        el análisis financiero.
+      </p>
+
+      <h3>API</h3>
+      <ul>
+        <li><span class="badge badge-api">GET /api/gastos</span> &mdash; listado con filtros (estado, tipo, fechas,
+          búsqueda en descripción).</li>
+        <li><span class="badge badge-api">POST /api/gastos</span> &mdash; registra gasto pendiente.</li>
+        <li><span class="badge badge-api">PUT /api/gastos/{id}</span> &mdash; actualiza campos (monto, fecha, estado,
+          descripción).</li>
+        <li><span class="badge badge-api">DELETE /api/gastos/{id}</span> &mdash; elimina definitivamente.</li>
+      </ul>
+
+      <h3>Front-end (<code>gastos.js</code>)</h3>
+      <ul>
+        <li><strong>Listado:</strong> <code>renderizarTabla()</code> realiza <code>fetch(API_URL, headers)</code> y
+          almacena en <code>gastosCache</code>.</li>
+        <li><strong>Filtros:</strong> se aplican en memoria con <code>aplicarFiltros()</code>, utilizando términos de
+          búsqueda, estado, tipo y fechas.</li>
+        <li><strong>Crear/Editar:</strong> el formulario detecta el modo con el hidden <code>#gastoId</code>. Si tiene
+          valor, usa <code>PUT</code>:</li>
+      </ul>
+      <pre><code>if (esEdicion) {
+  url = `${API_URL}/${gastoIdInput.value}`;
+  method = 'PUT';
+  payload = { descripcion, tipo: tipoSeleccionado, fecha, monto: montoValor };
+}</code></pre>
+      <ul>
+        <li><strong>Editar:</strong> <code>editarGasto(id)</code> hace <code>GET /api/gastos/{id}</code>, rellena campos
+          dinámicos (rol, usuario, tipo de servicio) y muestra el modal.</li>
+        <li><strong>Estado:</strong> <code>cambiarEstado(id)</code> alterna entre Pendiente/Completado.</li>
+        <li><strong>Eliminar:</strong> <code>eliminarGasto(id)</code> confirma, envía <code>DELETE</code> y actualiza la
+          tabla.</li>
+      </ul>
+    </section>
+
+    <section id="justificacion">
+      <h2>Justificación de Diseño y Buenas Prácticas</h2>
+      <ul>
+        <li><strong>Coherencia por capas:</strong> Controladores solo orquestan; la lógica reside en servicios,
+          facilitando pruebas y mantenibilidad.</li>
+        <li><strong>Validaciones contextuales:</strong> Documentos (DNI/RUC) y métodos de pago se validan en el
+          servicio, evitando ataques o datos inconsistentes.</li>
+        <li><strong>Represetación unificada de pagos:</strong> Se decidió no crear una tabla de <em>pagos</em> separada
+          porque todas las ventas comparten la misma mecánica (pago confirmable al momento) y el estado comercial se
+          controla con <code>EstadoVenta</code>.</li>
+        <li><strong>Uso de <code>Specification</code>:</strong> Evita traer todas las ventas a memoria, permite filtros
+          combinables y reduce la complejidad en el controlador.</li>
+        <li><strong>Rollback manual de stock:</strong> Minimiza el riesgo de inventario negativo o inconsistencias en la
+          base.</li>
+        <li><strong>Front-end reutilizable:</strong> Un único modal maneja alta y edición; se reduce duplicación y se
+          mejora UX.</li>
+        <li><strong>Indicadores en tiempo real:</strong> KPIs y reportes se alimentan de consultas agregadas,
+          manteniendo a la gerencia informada.</li>
+      </ul>
+    </section>
+
+    <section id="recomendaciones">
+      <h2>Recomendaciones Futuras</h2>
+      <ul>
+        <li>Registrar movimientos en la entidad <code>Movimientos_inventario</code> (hoy no se consume) para auditoría y
+          conciliación.</li>
+        <li>Agregar tests unitarios e integrados que cubran: validación de documentos, rollback de stock, filtros y KPI.
+        </li>
+        <li>Centralizar mensajes de error para permitir internacionalización y consistencia con la IU.</li>
+        <li>Integrar un sistema de notificaciones (email o in-app) cuando existan ventas pendientes o stocks críticos.
+        </li>
+        <li>Explorar la posibilidad de separar el módulo de gastos en microservicio si la complejidad aumenta (por
+          ejemplo, conciliación bancaria).</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    Informe elaborado por kevin &middot; ProyectoMDW &middot; Octubre 2025
+  </footer>
+
+  <script>
+    document.getElementById('btnDescargarPdf').addEventListener('click', () => {
+      window.print();
+    });
+  </script>
+</body>
+
+</html>

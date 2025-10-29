@@ -10,7 +10,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     Optional<Usuario> findByEmail(String email);
 
-    // AÑADE ESTA LÍNEA, ES PARA VERIFICAR SI UN EMAIL YA EXISTE
     Boolean existsByEmail(String email);
 
     long countByRol_Id(Integer idRol);

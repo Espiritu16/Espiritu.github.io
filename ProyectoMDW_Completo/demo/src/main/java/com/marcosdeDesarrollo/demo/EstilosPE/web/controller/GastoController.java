@@ -3,7 +3,7 @@ package com.marcosdeDesarrollo.demo.EstilosPE.web.controller;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoRequestDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoResponseDto;
 import com.marcosdeDesarrollo.demo.EstilosPE.domain.dto.GastoUpdateRequestDto;
-import com.marcosdeDesarrollo.demo.EstilosPE.domain.service.GastoService;
+import com.marcosdeDesarrollo.demo.EstilosPE.persistence.crud.GastoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
